@@ -206,7 +206,7 @@
     $("scene-loc").textContent = state.location.name.split(",")[0];
     $("scene-time").textContent = `${fmtClock(c.time)} ${fc.timezone_abbreviation}`;
     if (window.CapyMascot) {
-      $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700);
+      $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700, Number(state.settings.herdSize) || 2);
       $("capy-caption").textContent = CapyMascot.caption(c.weather_code, c.is_day);
     }
     $("hero-feels").textContent = fmtTemp(c.apparent_temperature);
@@ -1065,12 +1065,14 @@
   function openSettings() {
     $("set-synoptic").value = state.settings.synopticToken || "";
     $("set-mystation").value = state.settings.myStation || "";
+    $("set-herd").value = String(state.settings.herdSize || 2);
     $("settings-modal").classList.remove("hidden");
   }
 
   function saveSettings() {
     state.settings.synopticToken = $("set-synoptic").value.trim();
     state.settings.myStation = $("set-mystation").value.trim();
+    state.settings.herdSize = Number($("set-herd").value) || 2;
     localStorage.setItem("wc_settings", JSON.stringify(state.settings));
     $("settings-modal").classList.add("hidden");
     loadLocation(state.location); // refetch with new sources
@@ -1079,6 +1081,12 @@
   // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", () => {
     initTheme();
+    // Tap the scene: a squeak, and one more capybara arrives.
+    $("hero-card").addEventListener("click", (e) => {
+      if (!window.CapyMascot || e.target.closest("#adj-chip")) return;
+      const r = $("hero-card").getBoundingClientRect();
+      CapyMascot.sceneTap($("hero-card"), e.clientX - r.left, e.clientY - r.top);
+    });
     $("unit-toggle").textContent = tempUnit();
     $("unit-toggle").addEventListener("click", toggleUnits);
     $("theme-toggle").addEventListener("click", () =>

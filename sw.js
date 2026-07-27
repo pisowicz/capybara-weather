@@ -1,7 +1,7 @@
 /* Capybara Weather service worker: offline shell + last-known data. */
 
-const STATIC_CACHE = "capy-static-v6";
-const DATA_CACHE = "capy-data-v6";
+const STATIC_CACHE = "capy-static-v7";
+const DATA_CACHE = "capy-data-v7";
 
 const SHELL = [
   "./",

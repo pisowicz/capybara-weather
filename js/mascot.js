@@ -345,14 +345,16 @@
   }
 
   // ---------- Foreground compositions (the herd REALLY lives here) ----------
-  function foreground(g, W, H) {
+  function foreground(g, W, H, herd = 2) {
     const cx = W / 2;
     const wide = W > 500;
     const gy = H - 96; // ground horizon
     const hill = (fill, dx, ry) => `<ellipse cx="${cx + dx}" cy="${H + 30}" rx="${W * 0.85}" ry="${ry}" fill="${fill}"/>`;
-    // A scattered background herd along the horizon line.
+    // A scattered background herd along the horizon line. Herd setting:
+    // 1 = family only, 2 = herd (default), 3 = MAXIMUM CAPYBARA.
+    const MAX_SPOTS = [[-0.24, 0.3, 1, 1], [0.2, 0.27, 0, 1], [0.03, 0.34, 0, 0], [-0.13, 0.24, 1, 0], [0.47, 0.28, 1, 1], [-0.48, 0.26, 0, 0]];
     const bgHerd = (tint, y0, spots) =>
-      spots.map(([fx, sc, flip, graze]) =>
+      herd < 2 ? "" : spots.concat(herd >= 3 ? MAX_SPOTS : []).map(([fx, sc, flip, graze]) =>
         grazer(cx + fx * W, y0 + sc * 10, sc, flip, graze, tint, 0.85)).join("");
 
     if (g === "rain") {
@@ -514,7 +516,22 @@
   }
 
   // ---------- The immersive scene ----------
-  function scene(code, isDay, wide) {
+  // At herd level 3, the herd overflows the frame edges.
+  function edgeExtras(g, W, H) {
+    const gy = H - 96;
+    if (g === "fog") return "";
+    if (g === "rain") {
+      const poolTop = H - 170;
+      return `${place(-58, poolTop - 52, 0.62, false, soakHead({ eye: "closed" }, "csFur"), 150)}
+        ${place(W - 76, poolTop - 46, 0.58, true, soakHead({ eye: "happy" }, "csFur"), 150)}
+        ${duck(W - 40, poolTop + 70, 0.9)}`;
+    }
+    return `${place(-74, gy - 96, 0.78, false, capySide({ eye: "closed", fur: false }, "csFur"))}
+      ${place(W - 96, gy - 88, 0.72, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+      ${place(W - 150, gy - 40, 0.34, false, baby({ eye: "open" }, "csFur"))}`;
+  }
+
+  function scene(code, isDay, wide, herd = 2) {
     const g = groupFor(Number(code), Number(isDay));
     const [top, bottom] = SKIES[g];
     const W = wide ? 1000 : 390, H = wide ? 980 : 700;
@@ -525,7 +542,8 @@
       </linearGradient></defs>
       <rect width="${W}" height="${H}" fill="url(#csSky-${g})"/>
       ${ambient(g, W)}
-      ${foreground(g, W, H)}
+      ${foreground(g, W, H, herd)}
+      ${herd >= 3 ? edgeExtras(g, W, H) : ""}
     </svg>`;
   }
 
@@ -724,6 +742,54 @@
     </svg>`;
   }
 
+  // ---------- Tap the sky, summon a capybara ----------
+  let actx = null;
+  function squeak() {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = actx.currentTime;
+      for (const [dt, f0, f1] of [[0, 950, 1500], [0.12, 1150, 1650]]) {
+        const o = actx.createOscillator(), gn = actx.createGain();
+        o.type = "sine";
+        o.frequency.setValueAtTime(f0, t + dt);
+        o.frequency.exponentialRampToValueAtTime(f1, t + dt + 0.07);
+        gn.gain.setValueAtTime(0.0001, t + dt);
+        gn.gain.exponentialRampToValueAtTime(0.1, t + dt + 0.015);
+        gn.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.11);
+        o.connect(gn); gn.connect(actx.destination);
+        o.start(t + dt); o.stop(t + dt + 0.13);
+      }
+    } catch (e) { /* audio is a bonus, never an error */ }
+  }
+
+  const EEPS = ["eep!", "squeak!", "mlem", "eep eep!", "*blinks slowly*"];
+  function sceneTap(wrap, x, y) {
+    squeak();
+    const eep = document.createElement("div");
+    eep.className = "capy-eep";
+    eep.textContent = EEPS[Math.floor(Math.random() * EEPS.length)];
+    eep.style.left = `${x}px`;
+    eep.style.top = `${y}px`;
+    wrap.appendChild(eep);
+    setTimeout(() => eep.remove(), 1300);
+
+    const walkers = wrap.querySelectorAll(".capy-wander");
+    if (walkers.length >= 8) walkers[0].remove();
+    const w = document.createElement("div");
+    w.className = "capy-wander";
+    const size = Math.round(46 + Math.random() * 42);
+    const rtl = Math.random() < 0.5;
+    const dur = (9 + Math.random() * 7).toFixed(1);
+    const dist = Math.round(wrap.offsetWidth + size + 220);
+    w.style.cssText =
+      `width:${size}px;bottom:${Math.round(4 + Math.random() * 46)}px;--wx:${dist}px;animation-duration:${dur}s;` +
+      (rtl ? `right:${-size - 30}px;animation-name:capy-wander-l;` : `left:${-size - 30}px;animation-name:capy-wander-r;`);
+    w.innerHTML = walkerSVG();
+    if (rtl) w.querySelector("svg").style.transform = "scaleX(-1)";
+    w.addEventListener("animationend", () => w.remove());
+    wrap.appendChild(w);
+  }
+
   // ---------- Decorations ----------
   const STAFF = [
     "Humberto — Chief Forecast Officer",
@@ -795,5 +861,5 @@
     decorate();
   }
 
-  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate, scene, caption };
+  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate, scene, caption, sceneTap };
 })();

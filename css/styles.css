@@ -781,3 +781,38 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .capy-butterfly, .capy-firefly, .capy-bird-fly { animation: none !important; }
 }
+
+/* ---------- Tap-to-summon + herd setting ---------- */
+.capy-scene-wrap { cursor: pointer; }
+.settings-field select {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--card-border);
+  border-radius: 9px;
+  background: var(--inner);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.capy-wander { position: absolute; z-index: 2; pointer-events: none; }
+.capy-wander svg { width: 100%; height: auto; display: block; animation: capy-waddle 0.5s ease-in-out infinite; }
+@keyframes capy-wander-r { from { transform: translateX(0); } to { transform: translateX(var(--wx)); } }
+@keyframes capy-wander-l { from { transform: translateX(0); } to { transform: translateX(calc(-1 * var(--wx))); } }
+.capy-eep {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-shadow: 0 1px 4px rgba(10, 20, 30, 0.55);
+  transform: translate(-50%, -50%);
+  animation: capy-eep-float 1.25s ease-out forwards;
+}
+@keyframes capy-eep-float {
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to { opacity: 0; transform: translate(-50%, -110%) translateY(-34px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .capy-wander, .capy-wander svg, .capy-eep { animation-duration: 0.01s !important; }
+}
