@@ -245,8 +245,8 @@
   const snowCapy = (x, y, s = 1) => `
     <g transform="translate(${x} ${y}) scale(${s})">
       <ellipse cx="0" cy="14" rx="46" ry="6" fill="#c9d6e2" opacity="0.6"/>
-      <path d="M34 8 C40 -8 32 -26 8 -30 C-16 -34 -38 -26 -42 -10 C-45 2 -38 10 -24 13 C-4 17 26 16 34 8 Z" fill="#ffffff"/>
-      <path d="M22 -22 C22 -38 36 -46 52 -43 C64 -40 69 -32 68 -22 C67 -14 62 -8 54 -6 C44 -3 30 -6 26 -14 Z" fill="#ffffff"/>
+      <path d="M34 8 C40 -8 32 -26 8 -30 C-16 -34 -38 -26 -42 -10 C-45 2 -38 10 -24 13 C-4 17 26 16 34 8 Z" fill="#ffffff" stroke="#b9c9d6" stroke-width="2.5"/>
+      <path d="M22 -22 C22 -38 36 -46 52 -43 C64 -40 69 -32 68 -22 C67 -14 62 -8 54 -6 C44 -3 30 -6 26 -14 Z" fill="#ffffff" stroke="#b9c9d6" stroke-width="2.5"/>
       <path d="M30 -40 q-2 -9 6 -9 q7 0 6 8 q-1 6 -6 6 q-5 0 -6 -5 z" fill="#eef5fb" stroke="#c9d6e2" stroke-width="1.5"/>
       <path d="M52 -44 q0 -8 7 -7 q6 1 4 8 q-2 5 -6 5 q-4 -1 -5 -6 z" fill="#eef5fb" stroke="#c9d6e2" stroke-width="1.5"/>
       <circle cx="44" cy="-26" r="3" fill="#3a4a5a"/>
@@ -259,6 +259,31 @@
   const splash = (x, y, s = 1) => `
     <g transform="translate(${x} ${y}) scale(${s})" stroke="#cfe4f2" stroke-width="2" fill="none" opacity="0.7">
       <ellipse cx="0" cy="0" rx="10" ry="3"/><ellipse cx="0" cy="0" rx="18" ry="5.5" opacity="0.5"/>
+    </g>`;
+
+  // Distant herd member: simplified, cheap, reads at small sizes.
+  // graze=true lowers the head to the grass.
+  function grazer(x, y, s, flip, graze, tint = "#96683e", op = 1) {
+    const head = graze
+      ? `<g transform="rotate(38 52 26)"><path d="M46 30 C45 16 58 8 74 10 C87 12 93 20 92 31 C91 39 87 45 79 47 C69 50 55 48 50 41 C47 37 46 33 46 30 Z" fill="${tint}"/><path d="M56 12 q-1 -7 5 -7 q5 0 4 6 q0 5 -4 5 q-4 0 -5 -4 z" fill="${tint}" opacity="0.75"/></g>`
+      : `<path d="M46 26 C45 12 58 4 74 6 C87 8 93 16 92 27 C91 35 87 41 79 43 C69 46 55 44 50 37 C47 33 46 29 46 26 Z" fill="${tint}"/>
+         <path d="M56 8 q-1 -7 5 -7 q5 0 4 6 q0 5 -4 5 q-4 0 -5 -4 z" fill="${tint}" opacity="0.75"/>
+         <circle cx="72" cy="22" r="2" fill="#3a281a" opacity="0.8"/>`;
+    return `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})${flip ? " translate(-96 0)" : ""}" opacity="${op}">
+      <rect x="12" y="34" width="7" height="14" rx="3.5" fill="${tint}"/>
+      <rect x="42" y="34" width="7" height="14" rx="3.5" fill="${tint}"/>
+      <path d="M58 36 C64 24 58 10 40 7 C22 4 4 9 0 21 C-3 31 2 40 14 43 C30 47 52 45 58 36 Z" fill="${tint}"/>
+      ${head}
+    </g>`;
+  }
+
+  // A cloud that is, on closer inspection, a capybara.
+  const capyCloud = (x, y, s = 1, op = 0.75) => `
+    <g class="capy-cloud-drift" transform="translate(${x} ${y}) scale(${s})" opacity="${op}" fill="#ffffff">
+      <ellipse cx="0" cy="0" rx="58" ry="22"/>
+      <ellipse cx="52" cy="-10" rx="22" ry="16"/>
+      <ellipse cx="46" cy="-26" rx="7" ry="6"/>
+      <ellipse cx="72" cy="-6" rx="8" ry="6"/>
     </g>`;
 
   // ---------- Sky + ambient ----------
@@ -315,30 +340,40 @@
     return `<g fill="#ffffff">
       <ellipse class="capy-cloud-drift" cx="${Math.round(W * 0.23)}" cy="140" rx="85" ry="30" opacity="0.85"/>
       <ellipse class="capy-cloud-drift" style="animation-delay:-6s" cx="${Math.round(W * 0.77)}" cy="90" rx="70" ry="24" opacity="0.7"/>
-      <ellipse class="capy-cloud-drift" style="animation-delay:-12s" cx="${Math.round(W * 0.51)}" cy="210" rx="60" ry="20" opacity="0.5"/>
-    </g>`;
+    </g>
+    ${capyCloud(Math.round(W * 0.5), 215, 0.9, 0.55)}`;
   }
 
-  // ---------- Foreground compositions (the herd lives here) ----------
+  // ---------- Foreground compositions (the herd REALLY lives here) ----------
   function foreground(g, W, H) {
     const cx = W / 2;
     const wide = W > 500;
     const gy = H - 96; // ground horizon
     const hill = (fill, dx, ry) => `<ellipse cx="${cx + dx}" cy="${H + 30}" rx="${W * 0.85}" ry="${ry}" fill="${fill}"/>`;
+    // A scattered background herd along the horizon line.
+    const bgHerd = (tint, y0, spots) =>
+      spots.map(([fx, sc, flip, graze]) =>
+        grazer(cx + fx * W, y0 + sc * 10, sc, flip, graze, tint, 0.85)).join("");
 
     if (g === "rain") {
-      // Capybara onsen: the whole family soaking, plus one duck.
+      // The onsen at rush hour. Everyone is here. The duck is here.
       const poolTop = H - 170;
-      let d = `
+      const heads = wide
+        ? [[-420, 0.85, "closed", 0], [-295, 0.7, "open", 1], [-160, 1.0, "closed", 0], [-10, 1.1, "closed", 0, 1], [140, 0.72, "open", 1], [255, 0.9, "happy", 0], [370, 0.6, "closed", 1]]
+        : [[-185, 0.95, "closed", 0], [-60, 1.1, "closed", 0, 1], [72, 0.72, "open", 1], [148, 0.55, "closed", 0]];
+      return `
         <g stroke="#e8ecf0" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7">
-          <path class="capy-steam" d="M${cx - 120} ${poolTop - 26} q5 -9 0 -17 q-5 -8 0 -16"/>
-          <path class="capy-steam" style="animation-delay:0.8s" d="M${cx + 10} ${poolTop - 30} q5 -9 0 -17 q-5 -8 0 -16"/>
-          <path class="capy-steam" style="animation-delay:1.6s" d="M${cx + 140} ${poolTop - 24} q5 -9 0 -17 q-5 -8 0 -16"/>
+          <path class="capy-steam" d="M${cx - 130} ${poolTop - 28} q5 -9 0 -17 q-5 -8 0 -16"/>
+          <path class="capy-steam" style="animation-delay:0.8s" d="M${cx + 6} ${poolTop - 32} q5 -9 0 -17 q-5 -8 0 -16"/>
+          <path class="capy-steam" style="animation-delay:1.6s" d="M${cx + 130} ${poolTop - 26} q5 -9 0 -17 q-5 -8 0 -16"/>
         </g>
-        ${place(cx - 205, poolTop - 88, 1.0, false, soakHead({ eye: "closed" }, "csFur"))}
-        ${place(cx - 55, poolTop - 96, 1.1, false, soakHead({ eye: "closed", yuzu: true }, "csFur"))}
-        ${place(cx + 92, poolTop - 62, 0.72, true, soakHead({ eye: "open" }, "csFur"), 150)}
-        ${wide ? place(cx - 350, poolTop - 60, 0.8, false, soakHead({ eye: "closed" }, "csFur")) : ""}
+        ${heads.map(([dx, sc, eye, flip, yz]) =>
+          place(cx + dx, poolTop - 88 * sc, sc, !!flip, soakHead({ eye, yuzu: !!yz }, "csFur"), 150)).join("")}
+        <!-- baby, mid-cannonball -->
+        <g transform="translate(${cx + (wide ? 320 : 128)} ${poolTop - 150}) rotate(-24)">
+          ${place(0, 0, 0.34, true, capySide({ eye: "happy", fur: false, baby: true }, "csFur"))}
+        </g>
+        <path d="M${cx + (wide ? 330 : 138)} ${poolTop - 168} q14 -18 34 -20 M${cx + (wide ? 344 : 152)} ${poolTop - 146} q10 -12 24 -14" stroke="#e8ecf0" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
         <path d="M-10 ${poolTop} C ${W * 0.25} ${poolTop - 14}, ${W * 0.75} ${poolTop + 12}, ${W + 10} ${poolTop - 4} L ${W + 10} ${H + 10} L -10 ${H + 10} Z" fill="#7ec8e3" opacity="0.94"/>
         <path d="M-10 ${poolTop} C ${W * 0.25} ${poolTop - 14}, ${W * 0.75} ${poolTop + 12}, ${W + 10} ${poolTop - 4}" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.8"/>
         <g stroke="#ffffff" fill="none" opacity="0.45" stroke-width="2">
@@ -352,36 +387,47 @@
           <ellipse cx="${cx + W * 0.43}" cy="${poolTop}" rx="48" ry="18"/>
           <ellipse cx="${cx + W * 0.34}" cy="${poolTop + 10}" rx="26" ry="12" fill="#8f9ca6"/>
         </g>
-        ${duck(cx + (wide ? 262 : 148), poolTop + 44, 1.1)}
+        <!-- towel capybara supervising from the rocks (needs the wide deck) -->
+        ${wide ? place(cx - W * 0.47, poolTop - 92, 0.55, false, capySide({ eye: "closed", fur: false }, "csFur")) : ""}
+        ${duck(cx - (wide ? 180 : 110), poolTop + 52, 1.1)}
         <circle cx="${cx - 60}" cy="${poolTop + 58}" r="3.5" fill="#ffffff" opacity="0.5"/>
         <circle cx="${cx + 88}" cy="${poolTop + 66}" r="2.5" fill="#ffffff" opacity="0.4"/>`;
-      return d;
     }
 
     if (g === "clear-night") {
       return `
         ${hill("#3a5138", -W * 0.3, 130)}
+        ${bgHerd("#33472f", gy - 42, wide
+          ? [[-0.42, 0.42, 0, 0], [-0.3, 0.36, 1, 0], [0.3, 0.4, 0, 0], [0.42, 0.34, 1, 0], [0.12, 0.32, 0, 0]]
+          : [[-0.4, 0.4, 0, 0], [0.34, 0.36, 1, 0], [0.12, 0.3, 0, 0]])}
         ${hill("#4a6647", W * 0.25, 105)}
         ${fireflies(W, H)}
         ${reeds(cx - W * 0.44, gy + 40, 1.1)}
-        ${place(cx - 165, gy - 132, 1.12, false, capySide({ eye: "closed" }, "csFur"))}
-        ${place(cx + 32, gy - 60, 0.52, true, baby({ eye: "closed" }, "csFur"))}
-        ${wide ? place(cx - 420, gy - 96, 0.8, false, capySide({ eye: "closed", fur: false }, "csFur")) : ""}
+        <!-- the pile -->
+        ${place(cx - 250, gy - 116, 0.92, false, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${place(cx - 60, gy - 124, 1.02, true, capySide({ eye: "closed" }, "csFur"))}
+        ${place(cx - 148, gy - 158, 0.5, false, baby({ eye: "closed", fur: false }, "csFur"))}
+        ${place(cx + 60, gy - 58, 0.5, false, baby({ eye: "closed" }, "csFur"))}
         <g fill="#ffffff" font-weight="800" opacity="0.9" font-family="inherit">
-          <text class="capy-z" x="${cx + 96}" y="${gy - 130}" font-size="26">z</text>
-          <text class="capy-z" style="animation-delay:0.6s" x="${cx + 124}" y="${gy - 158}" font-size="20">z</text>
-          <text class="capy-z" style="animation-delay:1.2s" x="${cx + 146}" y="${gy - 182}" font-size="15">z</text>
+          <text class="capy-z" x="${cx + 108}" y="${gy - 128}" font-size="26">z</text>
+          <text class="capy-z" style="animation-delay:0.6s" x="${cx + 136}" y="${gy - 156}" font-size="20">z</text>
+          <text class="capy-z" style="animation-delay:1.2s" x="${cx + 158}" y="${gy - 180}" font-size="15">z</text>
+          <text class="capy-z" style="animation-delay:0.9s" x="${cx - 160}" y="${gy - 214}" font-size="13">z</text>
         </g>`;
     }
 
     if (g === "snow") {
       return `
         ${hill("#dde9f3", -W * 0.3, 130)}
+        ${bgHerd("#b9c9d6", gy - 40, wide
+          ? [[-0.44, 0.4, 0, 1], [-0.32, 0.34, 1, 0], [0.34, 0.38, 0, 1], [0.45, 0.32, 1, 0]]
+          : [[-0.38, 0.38, 0, 1], [0.4, 0.34, 1, 0]])}
         ${hill("#eef5fb", W * 0.25, 105)}
         ${wide ? bareTree(cx - W * 0.46, gy + 6, 1.5) : ""}
-        ${wide ? snowCapy(cx + 330, gy + 16, 1.3) : snowCapy(cx + 120, gy + 18, 1.0)}
-        ${place(cx - 200, gy - 138, 1.12, false, capySide({ eye: "happy", scarf: true }, "csFur"))}
-        ${place(cx + 46, gy - 72, 0.55, true, baby({ eye: "open", beanie: true }, "csFur"))}
+        ${wide ? snowCapy(cx + 330, gy + 16, 1.3) : snowCapy(cx + 128, gy + 14, 1.0)}
+        ${place(cx - 236, gy - 134, 1.08, false, capySide({ eye: "happy", scarf: true }, "csFur"))}
+        ${place(cx - 20, gy - 66, 0.52, true, baby({ eye: "open", beanie: true }, "csFur"))}
+        ${place(cx + (wide ? 180 : 40), gy - 116, 0.85, true, capySide({ eye: "closed", fur: false }, "csFur"))}
         <g fill="#c9d6e2" opacity="0.8">
           <ellipse cx="${cx - 250}" cy="${gy + 42}" rx="5" ry="2.5"/><ellipse cx="${cx - 226}" cy="${gy + 50}" rx="5" ry="2.5"/>
           <ellipse cx="${cx - 200}" cy="${gy + 44}" rx="5" ry="2.5"/><ellipse cx="${cx - 178}" cy="${gy + 52}" rx="5" ry="2.5"/>
@@ -391,54 +437,80 @@
     if (g === "storm") {
       return `
         ${hill("#59794c", -W * 0.3, 130)}
+        ${bgHerd("#4c6841", gy - 38, wide
+          ? [[-0.42, 0.36, 0, 0], [0.4, 0.38, 1, 0], [0.28, 0.3, 1, 0]]
+          : [[-0.38, 0.34, 0, 0], [0.38, 0.32, 1, 0]])}
         ${hill("#6f965e", W * 0.25, 105)}
         ${splash(cx - 190, gy + 40, 1.2)}${splash(cx + 170, gy + 30, 1)}${splash(cx + 40, gy + 52, 0.8)}
-        ${place(cx - 190, gy - 136, 1.12, false, capySide({ eye: "open", leaf: true }, "csFur"))}
-        ${place(cx + 6, gy - 66, 0.52, false, baby({ eye: "closed" }, "csFur"))}`;
+        <!-- one leaf, many tenants -->
+        ${place(cx - 210, gy - 132, 1.08, false, capySide({ eye: "open", leaf: true }, "csFur"))}
+        ${place(cx - 20, gy - 108, 0.8, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${place(cx - 96, gy - 62, 0.5, false, baby({ eye: "closed" }, "csFur"))}
+        <!-- the one who simply accepts the rain -->
+        ${place(cx + (wide ? 300 : 128), gy - 76, 0.62, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${splash(cx + (wide ? 340 : 168), gy + 4, 0.7)}`;
     }
 
     if (g === "fog") {
       return `
         ${hill("#7e957a", -W * 0.3, 130)}
         ${hill("#8fa38c", W * 0.25, 105)}
-        ${place(cx + 60, gy - 110, 0.72, true, `<g opacity="0.35">${capySide({ eye: "open", fur: false }, "csFur")}</g>`)}
-        ${wide ? place(cx + 300, gy - 92, 0.55, false, `<g opacity="0.22">${capySide({ fur: false }, "csFur")}</g>`) : ""}
-        ${place(cx - 230, gy - 134, 1.1, false, capySide({ eye: "open" }, "csFur"))}
+        ${place(cx + 150, gy - 150, 0.5, false, `<g opacity="0.16">${capySide({ fur: false }, "csFur")}</g>`)}
+        ${place(cx + 60, gy - 122, 0.72, true, `<g opacity="0.32">${capySide({ eye: "open", fur: false }, "csFur")}</g>`)}
+        ${place(cx - 40, gy - 96, 0.6, false, `<g opacity="0.24">${capySide({ fur: false }, "csFur")}</g>`)}
+        ${wide ? place(cx + 320, gy - 90, 0.55, false, `<g opacity="0.2">${capySide({ fur: false }, "csFur")}</g>`) : ""}
+        ${wide ? place(cx - 400, gy - 100, 0.62, true, `<g opacity="0.26">${capySide({ fur: false }, "csFur")}</g>`) : ""}
+        ${place(cx - 245, gy - 132, 1.08, false, capySide({ eye: "open" }, "csFur"))}
+        ${place(cx - 120, gy - 60, 0.45, true, `<g opacity="0.85">${baby({ eye: "open" }, "csFur")}</g>`)}
         <path d="M-20 ${gy - 10} h${W + 40}" stroke="#ffffff" stroke-width="30" stroke-linecap="round" opacity="0.35" class="capy-fog"/>`;
     }
 
     if (g === "cloudy") {
-      // The group loaf: three capybaras, zero plans.
+      // Maximum group loaf.
       return `
         ${hill("#86ab74", -W * 0.3, 130)}
+        ${bgHerd("#6f9058", gy - 40, wide
+          ? [[-0.45, 0.4, 0, 1], [-0.33, 0.34, 1, 0], [0.3, 0.42, 0, 1], [0.44, 0.34, 1, 1], [0.1, 0.3, 1, 0]]
+          : [[-0.42, 0.38, 0, 1], [0.34, 0.4, 1, 1], [0.1, 0.28, 0, 0]])}
         ${hill("#9cbf85", W * 0.25, 105)}
         ${reeds(cx + W * 0.42, gy + 36, 1.1)}
-        ${place(cx - 275, gy - 118, 0.95, false, capySide({ eye: "closed", fur: false }, "csFur"))}
-        ${place(cx - 40, gy - 128, 1.05, true, capySide({ eye: "open", bird: true }, "csFur"))}
-        ${place(cx - 70, gy - 62, 0.5, false, baby({ eye: "closed" }, "csFur"))}`;
+        ${place(cx - 285, gy - 112, 0.9, false, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${place(cx - 60, gy - 124, 1.02, true, capySide({ eye: "open", bird: true }, "csFur"))}
+        ${place(cx + (wide ? 190 : 105), gy - 100, 0.78, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${place(cx - 105, gy - 60, 0.48, false, baby({ eye: "closed" }, "csFur"))}
+        ${place(cx + 30, gy - 54, 0.42, true, baby({ eye: "open" }, "csFur"))}`;
     }
 
     if (g === "partly") {
       return `
         ${hill("#93b97e", -W * 0.3, 130)}
+        ${bgHerd("#7aa065", gy - 40, wide
+          ? [[-0.44, 0.4, 0, 1], [-0.3, 0.32, 1, 0], [0.32, 0.4, 0, 1], [0.44, 0.34, 1, 0]]
+          : [[-0.4, 0.38, 0, 1], [0.36, 0.36, 1, 0]])}
         ${hill("#a9d18e", W * 0.25, 105)}
         ${wide ? tree(cx - 400, gy + 10, 1.3) : ""}
         ${flowers(cx + W * 0.38, gy + 26, 1.2)}
-        ${place(cx - 215, gy - 136, 1.12, false, capySide({ eye: "happy", bird: true }, "csFur"))}
-        ${place(cx + 42, gy - 70, 0.54, false, baby({ eye: "open" }, "csFur"))}
-        ${butterfly(cx + 128, gy - 116)}`;
+        ${place(cx - 230, gy - 134, 1.08, false, capySide({ eye: "happy", bird: true }, "csFur"))}
+        ${place(cx - 10, gy - 68, 0.52, false, baby({ eye: "open" }, "csFur"))}
+        ${place(cx + (wide ? 210 : 96), gy - 108, 0.8, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+        ${butterfly(cx + 118, gy - 130)}`;
     }
 
-    // clear-day
+    // clear-day: sunbathing club, plus the grazing commuters on the hill
     return `
       ${hill("#93b97e", -W * 0.3, 130)}
+      ${bgHerd("#7aa065", gy - 40, wide
+        ? [[-0.45, 0.42, 0, 1], [-0.34, 0.36, 1, 0], [-0.12, 0.3, 0, 1], [0.3, 0.42, 0, 1], [0.42, 0.36, 1, 0], [0.14, 0.32, 1, 0]]
+        : [[-0.42, 0.4, 0, 1], [0.36, 0.38, 1, 1], [0.12, 0.3, 0, 0]])}
       ${hill("#a9d18e", W * 0.25, 105)}
       ${wide ? tree(cx + 380, gy + 8, 1.4) : ""}
       ${flowers(cx - W * 0.4, gy + 28, 1.2)}
       ${flowers(cx + W * 0.42, gy + 22, 0.9, "#c99df0")}
-      ${place(cx - 215, gy - 136, 1.12, false, capySide({ shades: true, eye: "happy" }, "csFur"))}
-      ${place(cx + 40, gy - 70, 0.54, true, baby({ eye: "happy" }, "csFur"))}
-      ${butterfly(cx + 10, gy - 186)}`;
+      ${place(cx - 235, gy - 134, 1.08, false, capySide({ shades: true, eye: "happy" }, "csFur"))}
+      ${place(cx + 15, gy - 68, 0.52, true, baby({ eye: "happy" }, "csFur"))}
+      ${place(cx + (wide ? 200 : 92), gy - 110, 0.82, true, capySide({ eye: "closed", fur: false }, "csFur"))}
+      ${butterfly(cx + 6, gy - 188)}
+      ${wide ? butterfly(cx - 330, gy - 150) : ""}`;
   }
 
   // ---------- The immersive scene ----------
@@ -659,6 +731,9 @@
     "Puddles — Hydrology (currently in the hydrology)",
     "Cumulus — Senior Cloud Watcher",
     "Beans — Intern (bird liaison)",
+    "Nimbus — Precipitation Tasting",
+    "Gustav — Wind Compliance",
+    "Mochi — Snack Forecasting",
   ];
 
   const PEEK_SPOTS = [
@@ -690,7 +765,7 @@
       herd.innerHTML =
         `<div class="capy-herd-track" aria-hidden="true">` +
         STAFF.map((name, i) =>
-          `<span class="capy-walker" style="animation-delay:${i * -7}s" title="${name}">${walkerSVG()}</span>`
+          `<span class="capy-walker" style="animation-delay:${i * -4.4}s" title="${name}">${walkerSVG()}</span>`
         ).join("") +
         `</div><p class="capy-herd-caption">The Capybara Weather team, heading to the pond. They are always heading to the pond.</p>`;
       footer.prepend(herd);
