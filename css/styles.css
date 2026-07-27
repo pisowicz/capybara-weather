@@ -1,6 +1,6 @@
 /* Capybara Weather — cozy card-based weather app with a capybara mascot.
    White page, soft-bordered cards, a left icon sidebar, pill navigation,
-   a warm sunset-brown hero where the capybara lives, and gauge-style
+   a sky-teal hero where the capybara lives (brown rodent, blue sky: contrast), and gauge-style
    condition tiles. All original CSS; no ad slots exist anywhere. */
 
 :root {
@@ -12,8 +12,8 @@
   --muted: #6c727c;
   --blue: #1d67d2;
   --blue-dark: #10529c;
-  --teal-1: #9c6a3a;
-  --teal-2: #c4914f;
+  --teal-1: #267d9c;
+  --teal-2: #45a3c4;
   --orange: #e77b23;
   --yellow: #f0b41c;
   --red: #cf3b3b;
@@ -35,8 +35,8 @@
   --muted: #9aa2b8;
   --blue: #6ea9ff;
   --blue-dark: #a8c8ff;
-  --teal-1: #6e4a26;
-  --teal-2: #8a5f33;
+  --teal-1: #1d5a72;
+  --teal-2: #2b7d99;
   --pill-dark: #0b0d1c;
   --hover: #232946;
   --shadow: none;
@@ -229,7 +229,7 @@ body {
 /* Hero */
 .hero-card {
   border-radius: var(--radius);
-  background: linear-gradient(115deg, var(--teal-1) 0%, var(--teal-2) 60%, #dbb178 100%);
+  background: linear-gradient(115deg, var(--teal-1) 0%, var(--teal-2) 60%, #6db8d6 100%);
   color: #fff;
   display: flex; justify-content: space-between; align-items: stretch;
   padding: 1.6rem 2rem; margin-bottom: 1rem; min-height: 215px;

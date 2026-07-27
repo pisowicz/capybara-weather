@@ -18,7 +18,7 @@ A capybara-themed sibling of [Beezer Weather](https://github.com/pisowicz/Beezer
 - **Capybara mascot** — a hand-drawn SVG capybara in the hero card with a different animated
   scene for every condition: clear day/night, partly cloudy (with a bird friend), cloudy, fog,
   rain (hot-spring soak 🍊), snow, and thunderstorms — `js/mascot.js`
-- **Today** — warm sunset-brown hero card, Today's Outlook strip with sunrise/sunset markers,
+- **Today** — sky-teal hero card, Today's Outlook strip with sunrise/sunset markers,
   morning/afternoon/evening/overnight forecast, and a gauge-tile grid (feels-like, wind
   compass, humidity, UV dial, air quality, dew point, pressure, visibility, cloud cover,
   sun arc, moon phase), plus a Health & Activities rail — and no ads, anywhere
