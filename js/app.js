@@ -192,6 +192,10 @@
     document.querySelectorAll(".obs-time-copy").forEach((el) => (el.textContent = asof));
   }
 
+  window.matchMedia("(min-width: 701px)").addEventListener("change", () => {
+    if (state.forecast) renderHero(state.forecast);
+  });
+
   function renderHero(fc) {
     const c = fc.current;
     const w = wmo(c.weather_code, c.is_day);
@@ -199,7 +203,12 @@
     $("current-temp").textContent = fmtTemp(c.temperature_2m);
     $("current-icon").textContent = w.icon;
     $("current-condition").textContent = w.text;
-    if (window.CapyMascot) $("capy-mascot").innerHTML = CapyMascot.render(c.weather_code, c.is_day);
+    $("scene-loc").textContent = state.location.name.split(",")[0];
+    $("scene-time").textContent = `${fmtClock(c.time)} ${fc.timezone_abbreviation}`;
+    if (window.CapyMascot) {
+      $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700);
+      $("capy-caption").textContent = CapyMascot.caption(c.weather_code, c.is_day);
+    }
     $("hero-feels").textContent = fmtTemp(c.apparent_temperature);
     $("hero-high").textContent = fmtTemp(fc.daily.temperature_2m_max[0]);
     $("hero-low").textContent = fmtTemp(fc.daily.temperature_2m_min[0]);
@@ -209,7 +218,6 @@
     const uv = Math.round(fc.hourly.uv_index?.[i] ?? 0);
     const uvLabel = uv <= 2 ? "Low" : uv <= 5 ? "Moderate" : uv <= 7 ? "High" : uv <= 10 ? "Very High" : "Extreme";
     $("hero-uv").textContent = `${uv} (${uvLabel})`;
-    if (window.CapyMascot) $("capy-wisdom").textContent = `“${CapyMascot.wisdom()}” — the capybara`;
   }
 
   function renderCorrectionChip() {

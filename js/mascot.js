@@ -282,6 +282,135 @@
     return { score, verdict, note: notes[0] || "no notes. flawless." };
   }
 
+
+  // ---------- Full-screen immersive scene (Kitty Weather style) ----------
+  // A tall painterly SVG that fills the hero: sky by condition, ambient
+  // weather across the whole canvas, and the big capybara scene at the
+  // bottom. preserveAspectRatio "slice" lets it crop like a photo.
+  const SKIES = {
+    "clear-day":   ["#2f8fd0", "#a8ddf5"],
+    "clear-night": ["#0d1834", "#2c4570"],
+    partly:        ["#3f9bd2", "#b5e0f2"],
+    cloudy:        ["#6f8798", "#c3d0d9"],
+    fog:           ["#8b99a3", "#d3dbe0"],
+    rain:          ["#4e6478", "#9fb4c4"],
+    snow:          ["#7d97ad", "#e3ecf4"],
+    storm:         ["#232e40", "#5d6e85"],
+  };
+
+  function ambient(g, W) {
+    if (g === "rain" || g === "storm") {
+      let d = "";
+      for (let i = 0; i < 16; i++) {
+        const x = 14 + ((i * 61) % (W - 24)), y = ((i * 97) % 260), delay = (i * 0.23) % 1.8;
+        d += `<line class="capy-drop-far" style="animation-delay:${delay}s" x1="${x}" y1="${y}" x2="${x - 6}" y2="${y + 22}" stroke="#cfe4f2" stroke-width="3" stroke-linecap="round" opacity="0.7"/>`;
+      }
+      if (g === "storm") d += `<path class="capy-bolt" d="M${Math.round(W * 0.77)} 96 l-26 52 l20 0 l-18 44 l44 -55 l-20 0 l23 -41 z" fill="#f6d55c"/>`;
+      return d;
+    }
+    if (g === "snow") {
+      let d = "";
+      for (let i = 0; i < 18; i++) {
+        const x = 10 + ((i * 53) % (W - 15)), y = ((i * 83) % 280), delay = (i * 0.4) % 3;
+        d += `<circle class="capy-flake-far" style="animation-delay:${delay}s" cx="${x}" cy="${y}" r="${3 + (i % 3)}" fill="#ffffff" opacity="0.85"/>`;
+      }
+      return d;
+    }
+    if (g === "fog") {
+      return `<g stroke="#ffffff" stroke-linecap="round" fill="none" opacity="0.5">
+        <path class="capy-fog" d="M-20 240 h${Math.round(W * 0.66)}" stroke-width="26"/>
+        <path class="capy-fog" style="animation-delay:1.4s" d="M${Math.round(W * 0.4)} 330 h${Math.round(W * 0.68)}" stroke-width="30"/>
+        <path class="capy-fog" style="animation-delay:2.8s" d="M-30 420 h${Math.round(W * 0.78)}" stroke-width="26"/>
+      </g>`;
+    }
+    if (g === "clear-night") {
+      let d = `<path d="M${W - 72} 70 a30 30 0 1 0 28 42 a24 24 0 0 1 -28 -42 z" fill="#f5e6a8"/>`;
+      for (let i = 0; i < 14; i++) {
+        const x = 12 + ((i * 71) % (W - 20)), y = 16 + ((i * 47) % 330), delay = (i * 0.5) % 2.4;
+        d += `<circle class="capy-star" style="animation-delay:${delay}s" cx="${x}" cy="${y}" r="${1.5 + (i % 2)}" fill="#ffffff"/>`;
+      }
+      return d;
+    }
+    if (g === "clear-day") {
+      return `<circle cx="${W - 68}" cy="86" r="60" fill="#ffe38a" opacity="0.35"/><circle cx="${W - 68}" cy="86" r="34" fill="#f6d55c"/>`;
+    }
+    // partly / cloudy: big soft clouds drifting near the top
+    return `<g fill="#ffffff">
+      <ellipse class="capy-cloud-drift" cx="${Math.round(W * 0.23)}" cy="140" rx="85" ry="30" opacity="0.85"/>
+      <ellipse class="capy-cloud-drift" style="animation-delay:-6s" cx="${Math.round(W * 0.77)}" cy="90" rx="70" ry="24" opacity="0.7"/>
+      <ellipse class="capy-cloud-drift" style="animation-delay:-12s" cx="${Math.round(W * 0.51)}" cy="210" rx="60" ry="20" opacity="0.5"/>
+    </g>`;
+  }
+
+  // Foregrounds for the immersive view: just ground + capybara, because
+  // the big sky above owns the sun/moon/clouds/precipitation.
+  const FOREGROUNDS = {
+    "clear-day": () => `${ground("#a8d08d")}${grass}${capy({ eye: "happy", extras: shades })}`,
+    "clear-night": () => `${ground("#5d7a52")}${capy({ eye: "closed" })}${zzz}`,
+    partly: () => `${ground("#a8d08d")}${grass}${capy({ eye: "happy", extras: bird })}`,
+    cloudy: () => `${ground("#9cbf85")}${capy({ extras: bird })}`,
+    fog: () => `${ground("#9cbf85")}${capy({ eye: "open" })}`,
+    rain: () => soakingCapy,
+    snow: () => `${ground("#eaf4fc")}${capy({ eye: "happy", extras: scarf })}`,
+    storm: () => `${ground("#7fa06b")}${capy({ eye: "open", blush: false, extras: leaf })}`,
+  };
+
+  function scene(code, isDay, wide) {
+    const g = groupFor(Number(code), Number(isDay));
+    const [top, bottom] = SKIES[g];
+    const W = wide ? 1000 : 390, H = wide ? 980 : 700;
+    // Embedded close-up: the little 200x124 foreground scaled up to fill the bottom.
+    const S = 2.9, w = 200 * S, h = 124 * S;
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Capybara scene: ${g}">
+      <defs><linearGradient id="capySky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/>
+      </linearGradient></defs>
+      <rect width="${W}" height="${H}" fill="url(#capySky)"/>
+      ${ambient(g, W)}
+      <g transform="translate(${(W - w) / 2} ${H - h + 6}) scale(${S})">${FOREGROUNDS[g]()}</g>
+    </svg>`;
+  }
+
+  // What the capybara has to say about it (shown at the bottom, kitty-style).
+  const CAPTIONS = {
+    "clear-day": [
+      "I have achieved optimal warm. Do not perceive me.",
+      "The sun and I have an arrangement. This is the arrangement.",
+    ],
+    "clear-night": [
+      "The forecast said stars. I am counting them with my eyes closed.",
+      "Night shift. All quiet. Mostly because I am asleep.",
+    ],
+    partly: [
+      "The bird says it's nice out. I pay the bird in crumbs, so I believe it.",
+      "Half sun, half cloud. I remain fully committed to sitting.",
+    ],
+    cloudy: [
+      "Big gray fluffy sky. Relatable content.",
+      "The clouds are doing my job: hanging around, looking soft.",
+    ],
+    fog: [
+      "I can't see you. Legally, that means it's nap time.",
+      "The sky came down for a soak. Respect.",
+    ],
+    rain: [
+      "The sky is refilling my tub. Please hold all appointments.",
+      "Room for one more in the spring. It's you. Get in.",
+    ],
+    snow: [
+      "Cold fluff falling from the sky. I have a scarf. I am invincible.",
+      "The pond went crunchy. Investigating from a safe distance.",
+    ],
+    storm: [
+      "The sky is being dramatic. I am under my leaf. We are not the same.",
+      "Thunder is just the sky doing a big yawn. Still rude though.",
+    ],
+  };
+  function caption(code, isDay) {
+    const arr = CAPTIONS[groupFor(Number(code), Number(isDay))];
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
   // ---------- Decorations: peekers, corner buddy, footer staff ----------
   const STAFF = [
     "Humberto — Chief Forecast Officer",
@@ -353,5 +482,5 @@
     decorate();
   }
 
-  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate };
+  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate, scene, caption };
 })();

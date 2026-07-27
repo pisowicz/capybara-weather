@@ -710,3 +710,58 @@ body {
   .capy-walker:nth-child(3) { left: 48%; } .capy-walker:nth-child(4) { left: 68%; }
   .capy-walker:nth-child(5) { left: 88%; }
 }
+
+/* ---------- Immersive scene (Kitty Weather style) ---------- */
+.capy-scene-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  min-height: min(84svh, 780px);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  background: #4e6478;
+}
+#capy-scene, #capy-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.scene-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.4rem 1rem 1rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(10, 20, 30, 0.35), 0 4px 18px rgba(10, 20, 30, 0.25);
+}
+.scene-loc { font-size: 2.3rem; font-weight: 300; letter-spacing: 0.01em; line-height: 1.1; }
+.scene-time { font-size: 1rem; font-weight: 500; opacity: 0.92; margin-top: 0.2rem; }
+.scene-temp { font-size: clamp(5.5rem, 22vw, 8rem); font-weight: 200; line-height: 1.02; letter-spacing: -2px; margin-top: 0.4rem; }
+.scene-hilo { display: flex; gap: 1.6rem; font-size: 1.35rem; font-weight: 300; margin-top: 0.2rem; }
+.scene-hilo strong { font-weight: 500; }
+.scene-cond { font-size: 1.4rem; font-weight: 400; margin-top: 0.3rem; display: flex; align-items: center; gap: 0.45rem; }
+.scene-ico { font-size: 1.3rem; }
+.scene-overlay .adj-chip { margin-top: 0.8rem; pointer-events: auto; }
+.capy-caption {
+  position: absolute;
+  left: 1rem; right: 1rem; bottom: 1.1rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-shadow: 0 1px 4px rgba(10, 20, 30, 0.55);
+}
+.right-now-card .hero-facts { color: var(--text); margin-top: 0; }
+
+.capy-drop-far { animation: capy-fall-far 1.7s linear infinite; }
+@keyframes capy-fall-far { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: 0.7; } 85% { opacity: 0.7; } 100% { transform: translateY(430px); opacity: 0; } }
+.capy-flake-far { animation: capy-drift-far 4.5s linear infinite; }
+@keyframes capy-drift-far { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 0.85; } 100% { transform: translate(24px, 440px); opacity: 0; } }
+.capy-cloud-drift { animation: capy-cloud-slide 18s ease-in-out infinite alternate; }
+@keyframes capy-cloud-slide { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
+@media (prefers-reduced-motion: reduce) {
+  .capy-drop-far, .capy-flake-far, .capy-cloud-drift { animation: none !important; }
+}
+@media (max-width: 700px) {
+  .capy-scene-wrap { min-height: 76svh; border-radius: 14px; }
+  .scene-loc { font-size: 1.9rem; }
+  .capy-caption { font-size: 1.02rem; }
+}

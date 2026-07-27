@@ -93,27 +93,30 @@
 
           <div class="today-grid">
             <div class="today-main">
-              <!-- Hero card -->
-              <div class="hero-card" id="hero-card">
-                <div class="hero-left">
-                  <div id="current-temp" class="hero-temp"></div>
-                  <div class="hero-facts">
-                    <span>Feels Like <strong id="hero-feels"></strong></span><span class="hero-sep">|</span>
-                    <span>High <strong id="hero-high"></strong></span><span class="hero-sep">|</span>
-                    <span>Low <strong id="hero-low"></strong></span>
+              <!-- Immersive capybara scene (Kitty Weather style) -->
+              <div class="capy-scene-wrap" id="hero-card">
+                <div id="capy-scene" aria-hidden="true"></div>
+                <div class="scene-overlay">
+                  <div class="scene-loc" id="scene-loc"></div>
+                  <div class="scene-time" id="scene-time"></div>
+                  <div id="current-temp" class="scene-temp"></div>
+                  <div class="scene-hilo">
+                    <span>&#8593; <strong id="hero-high"></strong></span>
+                    <span>&#8595; <strong id="hero-low"></strong></span>
                   </div>
-                  <div class="hero-facts">
-                    <span>Chance of Rain <strong id="hero-rain"></strong></span><span class="hero-sep">|</span>
-                    <span><strong id="hero-precip"></strong></span><span class="hero-sep">|</span>
-                    <span>UV Index <strong id="hero-uv"></strong></span>
-                  </div>
-                  <div id="capy-wisdom" class="capy-wisdom"></div>
+                  <div class="scene-cond"><span id="current-icon" class="scene-ico"></span><span id="current-condition"></span></div>
                   <button id="adj-chip" class="adj-chip hidden"></button>
+                  <div id="capy-caption" class="capy-caption"></div>
                 </div>
-                <div class="hero-right">
-                  <div id="capy-mascot" class="capy-mascot" aria-hidden="true"></div>
-                  <span id="current-icon" class="hero-icon"></span>
-                  <div id="current-condition" class="hero-cond"></div>
+              </div>
+
+              <div class="card right-now-card">
+                <h2 class="card-title">Right Now <span class="card-subtitle">the boring numbers, capybara-verified</span></h2>
+                <div class="hero-facts now-facts">
+                  <span>Feels Like <strong id="hero-feels"></strong></span><span class="hero-sep">|</span>
+                  <span>Chance of Rain <strong id="hero-rain"></strong></span><span class="hero-sep">|</span>
+                  <span><strong id="hero-precip"></strong></span><span class="hero-sep">|</span>
+                  <span>UV Index <strong id="hero-uv"></strong></span>
                 </div>
               </div>
 
