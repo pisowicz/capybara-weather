@@ -618,3 +618,95 @@ body {
 @media (max-width: 700px) {
   .capy-mascot { width: 140px; }
 }
+
+/* ---------- Capybaras everywhere ---------- */
+.capy-wisdom {
+  margin-top: 0.9rem;
+  font-size: 0.92rem;
+  font-style: italic;
+  opacity: 0.92;
+  max-width: 34rem;
+}
+
+/* Loading: capybara soaking while the models converge */
+.capy-loading { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.capy-loading svg { width: 150px; height: auto; }
+.capy-err { color: var(--red); font-size: 0.85rem; }
+
+/* Comfort Index tile */
+.capy-comfort { text-align: left; }
+.cc-score { font-size: 2rem; font-weight: 800; line-height: 1; }
+.cc-outof { font-size: 1rem; font-weight: 600; color: var(--muted); }
+.cc-oranges { font-size: 1rem; letter-spacing: 2px; margin: 0.25rem 0; }
+.cc-verdict { font-size: 0.86rem; font-weight: 700; margin-top: 0.15rem; }
+.cc-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* Peekers over card edges */
+.card { position: relative; }
+.capy-peek {
+  position: absolute;
+  top: -21px;
+  right: 26px;
+  width: 56px;
+  pointer-events: auto;
+  cursor: help;
+  filter: drop-shadow(0 -1px 2px rgba(20, 24, 33, 0.12));
+}
+.capy-peek svg { width: 100%; height: auto; display: block; }
+
+/* Footer staff, commuting forever */
+.capy-herd { overflow: hidden; margin-bottom: 0.8rem; }
+.capy-herd-track { position: relative; height: 44px; }
+.capy-walker {
+  position: absolute;
+  bottom: 0;
+  left: -110px;
+  width: 66px;
+  animation: capy-commute 35s linear infinite;
+}
+.capy-walker svg { width: 100%; height: auto; display: block; animation: capy-waddle 0.55s ease-in-out infinite; }
+@keyframes capy-commute { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 220px)); } }
+@keyframes capy-waddle { 0%, 100% { transform: rotate(-1.5deg) translateY(0); } 50% { transform: rotate(1.5deg) translateY(-2px); } }
+.capy-herd-caption { text-align: center; font-size: 0.78rem; color: var(--muted); font-style: italic; margin-top: 0.3rem; }
+
+/* Corner buddy */
+.capy-corner {
+  position: fixed;
+  bottom: -6px;
+  right: 18px;
+  width: 74px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 60;
+  transition: transform 0.25s ease;
+}
+.capy-corner:hover { transform: translateY(-5px); }
+.capy-corner svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 -2px 6px rgba(20, 24, 33, 0.2)); }
+.capy-bubble {
+  position: absolute;
+  bottom: 52px;
+  right: 0;
+  width: 220px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 12px 12px 2px 12px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  box-shadow: var(--shadow-pop);
+  text-align: left;
+}
+@media (max-width: 700px) {
+  .capy-peek { width: 44px; top: -17px; right: 14px; }
+  .capy-corner { width: 58px; right: 10px; }
+  .capy-walker { width: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .capy-walker, .capy-walker svg { animation: none !important; }
+  .capy-walker:nth-child(1) { left: 8%; } .capy-walker:nth-child(2) { left: 28%; }
+  .capy-walker:nth-child(3) { left: 48%; } .capy-walker:nth-child(4) { left: 68%; }
+  .capy-walker:nth-child(5) { left: 88%; }
+}

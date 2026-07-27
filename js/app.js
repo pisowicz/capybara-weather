@@ -105,7 +105,7 @@
     state.location = loc;
     localStorage.setItem("wc_location", JSON.stringify(loc));
     $("loading").classList.remove("hidden");
-    $("loading").textContent = "Loading forecast…";
+    $("loading").innerHTML = window.CapyMascot ? CapyMascot.loadingHTML() : "Loading forecast…";
     $("loc-pill-name").textContent = loc.name;
 
     let forecast, aqi, stations, alerts;
@@ -117,7 +117,7 @@
         Alerts.fetchActive(loc.lat, loc.lon),
       ]);
     } catch (err) {
-      $("loading").textContent = `Could not load forecast: ${err.message}`;
+      $("loading").innerHTML = `<div class="capy-loading">🐹 The capybara went to get the forecast and came back with an orange.<br><span class="capy-err">${err.message}</span><br>It will try again if you reload.</div>`;
       return;
     }
 
@@ -138,6 +138,7 @@
 
     $("loading").classList.add("hidden");
     document.querySelectorAll(".hidden-until-load").forEach((el) => el.classList.remove("hidden-until-load"));
+    if (window.CapyMascot) CapyMascot.decorate(); // re-seat peekers on freshly rendered cards
   }
 
   /**
@@ -208,6 +209,7 @@
     const uv = Math.round(fc.hourly.uv_index?.[i] ?? 0);
     const uvLabel = uv <= 2 ? "Low" : uv <= 5 ? "Moderate" : uv <= 7 ? "High" : uv <= 10 ? "Very High" : "Extreme";
     $("hero-uv").textContent = `${uv} (${uvLabel})`;
+    if (window.CapyMascot) $("capy-wisdom").textContent = `“${CapyMascot.wisdom()}” — the capybara`;
   }
 
   function renderCorrectionChip() {
@@ -242,6 +244,19 @@
     const c = fc.current;
     const i = currentHourIndex(fc);
     const parts = [];
+
+    // Capybara Comfort Index™ — the tile the meteorology community
+    // didn't ask for. Scores conditions by capybara standards.
+    if (window.CapyMascot) {
+      const tempF = state.units === "imperial" ? c.apparent_temperature : c.apparent_temperature * 9 / 5 + 32;
+      const windMph = state.units === "imperial" ? c.wind_speed_10m : c.wind_speed_10m * 0.621371;
+      const cc = CapyMascot.comfort({ tempF, code: c.weather_code, windMph, isDay: c.is_day });
+      parts.push(tile("🐹", "Capybara Comfort Index™",
+        `<div class="capy-comfort"><div class="cc-score">${cc.score}<span class="cc-outof">/10</span></div>` +
+        `<div class="cc-oranges">${"🍊".repeat(Math.max(1, Math.round(cc.score / 2)))}</div>` +
+        `<div class="cc-verdict">${cc.verdict}</div>` +
+        `<div class="cc-note">Field notes: ${cc.note}</div></div>`));
+    }
 
     // Feels Like — small dial mapped over a plausible temperature span.
     const feels = c.apparent_temperature;
