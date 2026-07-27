@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Capybara Weather" />
+  <title>Capybara Weather — Cozy Forecasts with a Capybara Friend</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ LEFT SIDEBAR (weather.com-style) ============ -->
+    <aside class="sidebar">
+      <a class="logo" href="#" id="logo-home" title="Capybara Weather">
+        <span class="logo-box">Capybara<br />Weather</span>
+      </a>
+      <nav class="side-nav">
+        <button class="side-item active" data-goto="today" id="side-forecasts">
+          <span class="side-icon">☁️</span><span class="side-label">Forecasts</span>
+        </button>
+        <button class="side-item" data-goto="map">
+          <span class="side-icon">🎯</span><span class="side-label">Radar</span>
+        </button>
+        <button class="side-item" data-goto="activities">
+          <span class="side-icon">🚴</span><span class="side-label">Activities</span>
+        </button>
+        <button class="side-item" data-goto="blend">
+          <span class="side-icon">🧭</span><span class="side-label">Models</span>
+        </button>
+      </nav>
+      <div class="side-bottom">
+        <button id="theme-toggle" class="side-pill" title="Toggle dark mode">🌙 Theme</button>
+        <button id="settings-btn" class="side-pill dark" title="Settings">⚙️ Settings</button>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN COLUMN ============ -->
+    <div class="main-col">
+      <header class="topbar">
+        <!-- Location pill + dropdown -->
+        <div class="loc-wrap">
+          <button id="location-pill" class="location-pill">
+            <span class="loc-pin">➤</span>
+            <span id="loc-pill-name">—</span>
+            <span class="loc-chevron">▾</span>
+          </button>
+          <div id="loc-panel" class="loc-panel hidden">
+            <div class="loc-search-row">
+              <input id="search-input" type="search" placeholder="Search City or ZIP Code" autocomplete="off" />
+              <button id="locate-btn" title="Use my location">📍</button>
+            </div>
+            <ul id="search-results" class="search-results hidden"></ul>
+            <div class="loc-saved-head">Saved locations <button id="fav-btn" class="fav-btn" title="Save current location">☆</button></div>
+            <ul id="fav-list" class="fav-list"></ul>
+          </div>
+        </div>
+
+        <!-- Pill tab nav -->
+        <nav class="tab-nav">
+          <button class="tab-btn active" data-tab="today">Today</button>
+          <button class="tab-btn" data-tab="hourly">Hourly</button>
+          <button class="tab-btn" data-tab="tenday">10 Day</button>
+          <button class="tab-btn" data-tab="monthly">Monthly</button>
+          <button class="tab-btn" data-tab="allergies">Allergies</button>
+          <button class="tab-btn" data-tab="airquality">Air Quality</button>
+          <button class="tab-btn tab-btn-sidebar-echo" data-tab="map">Radar</button>
+          <button class="tab-btn tab-btn-sidebar-echo" data-tab="activities">Activities</button>
+          <button class="tab-btn tab-btn-sidebar-echo" data-tab="blend">Models</button>
+        </nav>
+
+        <button id="unit-toggle" class="unit-toggle" title="Toggle units">°F</button>
+      </header>
+
+      <main class="content">
+        <div id="alert-banner" class="alert-banner hidden"></div>
+        <div id="loading" class="loading">Loading forecast…</div>
+
+        <!-- ================= TODAY ================= -->
+        <section id="tab-today" class="tab-panel active hidden-until-load">
+          <div class="page-head">
+            <h1 id="page-title" class="page-title"></h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span id="loc-full"></span> · <span id="obs-time"></span></p>
+          </div>
+
+          <div class="today-grid">
+            <div class="today-main">
+              <!-- Hero card -->
+              <div class="hero-card" id="hero-card">
+                <div class="hero-left">
+                  <div id="current-temp" class="hero-temp"></div>
+                  <div class="hero-facts">
+                    <span>Feels Like <strong id="hero-feels"></strong></span><span class="hero-sep">|</span>
+                    <span>High <strong id="hero-high"></strong></span><span class="hero-sep">|</span>
+                    <span>Low <strong id="hero-low"></strong></span>
+                  </div>
+                  <div class="hero-facts">
+                    <span>Chance of Rain <strong id="hero-rain"></strong></span><span class="hero-sep">|</span>
+                    <span><strong id="hero-precip"></strong></span><span class="hero-sep">|</span>
+                    <span>UV Index <strong id="hero-uv"></strong></span>
+                  </div>
+                  <button id="adj-chip" class="adj-chip hidden"></button>
+                </div>
+                <div class="hero-right">
+                  <div id="capy-mascot" class="capy-mascot" aria-hidden="true"></div>
+                  <span id="current-icon" class="hero-icon"></span>
+                  <div id="current-condition" class="hero-cond"></div>
+                </div>
+              </div>
+
+              <div id="alerts-card" class="card hidden">
+                <h2 class="card-title">⚠ Active Alerts</h2>
+                <div id="alerts-list"></div>
+              </div>
+
+              <!-- Today's Outlook -->
+              <div class="card">
+                <h2 class="card-title">Today's Outlook</h2>
+                <p id="outlook-insight" class="outlook-insight"></p>
+                <div id="today-hourly-strip" class="hourly-strip"></div>
+                <a class="link-next48" href="#" data-goto="hourly">Next 48 Hours ›</a>
+              </div>
+
+              <!-- Today's Forecast (morning / afternoon / evening / overnight) -->
+              <div class="card">
+                <h2 class="card-title">Today's Forecast</h2>
+                <div id="today-segments" class="today-segments"></div>
+              </div>
+
+              <!-- Current conditions widget grid -->
+              <h2 class="section-title">Current Conditions</h2>
+              <div id="current-widgets" class="widget-grid"></div>
+
+              <div id="stations-card" class="card hidden">
+                <h2 class="card-title">Nearby Stations <span class="card-subtitle">live observations</span></h2>
+                <div id="stations-strip" class="stations-strip"></div>
+                <p id="stations-note" class="stations-note"></p>
+              </div>
+            </div>
+
+            <!-- Right rail -->
+            <aside class="today-rail">
+              <div class="card rail-card">
+                <h2 class="card-title">Health &amp; Activities</h2>
+                <div id="rail-health"></div>
+              </div>
+              <div class="card rail-card">
+                <h2 class="card-title">Air Quality Index</h2>
+                <div id="rail-aqi"></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ================= HOURLY ================= -->
+        <section id="tab-hourly" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Hourly Weather</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div class="metric-pills" id="hourly-metrics">
+            <button class="metric-pill active" data-metric="overview">Overview</button>
+            <button class="metric-pill" data-metric="temperature">Temperature</button>
+            <button class="metric-pill" data-metric="feels">Feels Like</button>
+            <button class="metric-pill" data-metric="precipitation">Precipitation</button>
+            <button class="metric-pill" data-metric="wind">Wind</button>
+            <button class="metric-pill" data-metric="humidity">Humidity</button>
+          </div>
+          <div id="hourly-groups"></div>
+        </section>
+
+        <!-- ================= 10 DAY ================= -->
+        <section id="tab-tenday" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Daily Forecast</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div class="card table-card">
+            <div class="tenday-head">
+              <span>Day</span><span>Conditions</span><span class="th-low">Low</span><span></span><span class="th-high">High</span><span>Wind</span><span></span>
+            </div>
+            <div id="tenday-list" class="tenday-list"></div>
+          </div>
+        </section>
+
+        <!-- ================= MONTHLY ================= -->
+        <section id="tab-monthly" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Monthly Weather</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span id="monthly-label"></span></p>
+          </div>
+          <div class="card table-card">
+            <div class="cal-dow">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="monthly-grid" class="cal-grid"></div>
+            <p class="cal-note">Past days show model-analyzed conditions; future days show the forecast (up to 15 days out).</p>
+          </div>
+        </section>
+
+        <!-- ================= ALLERGIES ================= -->
+        <section id="tab-allergies" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Allergy Forecast</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div id="allergy-content"></div>
+        </section>
+
+        <!-- ================= AIR QUALITY ================= -->
+        <section id="tab-airquality" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Air Quality Index</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div id="aq-content"></div>
+        </section>
+
+        <!-- ================= RADAR / MAP ================= -->
+        <section id="tab-map" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Radar</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="radar-attribution">© RainViewer / NASA GIBS / NWS / OpenStreetMap</span></p>
+          </div>
+          <div class="card">
+            <div class="layer-bar">
+              <label><input type="checkbox" class="layer-toggle" data-layer="radar" checked /> Radar</label>
+              <label><input type="checkbox" class="layer-toggle" data-layer="satellite" /> Satellite</label>
+              <label><input type="checkbox" class="layer-toggle" data-layer="alerts" checked /> Alerts</label>
+              <label><input type="checkbox" class="layer-toggle" data-layer="stations" checked /> Stations</label>
+            </div>
+            <div id="radar-map"></div>
+            <div class="radar-controls">
+              <button id="radar-play" class="radar-btn">▶ Play</button>
+              <input id="radar-scrub" class="radar-scrub" type="range" min="0" max="0" value="0" />
+              <span id="radar-timestamp" class="radar-timestamp"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= ACTIVITIES ================= -->
+        <section id="tab-activities" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Health &amp; Activities</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Smart Forecasts <span class="card-subtitle">best windows in the next 48 hours, scored on the locally-corrected forecast</span></h2>
+            <div id="activity-list" class="activity-list"></div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Add an Activity</h2>
+            <form id="activity-form" class="activity-form">
+              <div class="af-row">
+                <label>Name <input name="act-name" type="text" placeholder="Stargazing" required /></label>
+                <label>Emoji <input name="act-emoji" type="text" maxlength="4" placeholder="🔭" /></label>
+              </div>
+              <div class="af-row">
+                <label>Temp min (°F) <input name="act-tmin" type="number" value="45" /></label>
+                <label>Temp max (°F) <input name="act-tmax" type="number" value="75" /></label>
+                <label>Max wind (mph) <input name="act-wind" type="number" value="15" /></label>
+                <label>Max precip (%) <input name="act-precip" type="number" value="20" /></label>
+              </div>
+              <div class="af-row">
+                <label class="af-check"><input name="act-day" type="checkbox" checked /> Daylight hours only</label>
+                <button type="submit" class="radar-btn">Add activity</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ================= MODEL BLEND ================= -->
+        <section id="tab-blend" class="tab-panel hidden-until-load">
+          <div class="page-head">
+            <h1 class="page-title">Forecast Models</h1>
+            <p class="asof-line"><span class="asof-pin">📍</span> <span class="loc-full-copy"></span> · <span class="obs-time-copy"></span></p>
+          </div>
+          <div class="card">
+            <h2 class="card-title">How This Forecast Is Made — Multi-Model Blend</h2>
+            <p class="blend-explainer">
+              The Weather Channel doesn't rely on a single weather model. Its forecast engine
+              ingests <strong>100+ numerical models</strong> (GFS, ECMWF, its own IBM GRAF, and more),
+              bias-corrects each one against recent observations, and blends them into a single
+              consensus point forecast. This panel replicates that pipeline at miniature scale:
+              three real global models, a skill-weighted blend, and — when nearby stations are
+              reporting — a live observation correction on top.
+            </p>
+            <div id="blend-legend" class="blend-legend"></div>
+            <div id="blend-chart-wrap" class="blend-chart-wrap"></div>
+            <div id="blend-table-wrap"></div>
+            <div id="blend-confidence" class="blend-confidence"></div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">The Real Pipeline</h2>
+            <div class="pipeline">
+              <div class="pipeline-step"><span class="step-num">1</span><strong>Observe</strong><p>Satellites, radar, aircraft, balloons, and 250k+ personal weather stations feed current conditions.</p></div>
+              <div class="pipeline-step"><span class="step-num">2</span><strong>Model</strong><p>Dozens of NWP models — including IBM GRAF running the MPAS core at ~3&nbsp;km globally, updated hourly — simulate the atmosphere.</p></div>
+              <div class="pipeline-step"><span class="step-num">3</span><strong>Blend &amp; Correct</strong><p>A DiCast-derived engine bias-corrects every model against recent verification and computes optimal weights per location and lead time.</p></div>
+              <div class="pipeline-step"><span class="step-num">4</span><strong>Localize</strong><p>Forecasts are interpolated to a fine grid, then corrected against nearby surface stations — exactly what the Nearby Stations feature does here.</p></div>
+            </div>
+            <p class="blend-explainer">Read the full research in <code>docs/HOW_TWC_BUILDS_FORECASTS.md</code>.</p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Capybara Weather — an educational, ad-free weather app with a cozy capybara mascot and Weather Underground-style
+          station correction. Data:
+          <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> ·
+          <a href="https://www.weather.gov/documentation/services-web-api" target="_blank" rel="noopener">NWS</a> ·
+          <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a> ·
+          <a href="https://synopticdata.com/" target="_blank" rel="noopener">Synoptic</a>.
+          Not affiliated with The Weather Channel or Weather Underground.</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-box">
+      <h2 class="card-title">Settings</h2>
+      <label class="settings-field">Synoptic Data token <span class="settings-hint">free open-access token — adds CWOP/mesonet stations for real neighborhood density</span>
+        <input id="set-synoptic" type="text" placeholder="paste token (optional)" />
+      </label>
+      <label class="settings-field">Pin my station <span class="settings-hint">a station ID from the nearby list to always show first</span>
+        <input id="set-mystation" type="text" placeholder="e.g. KNYC or D1234 (optional)" />
+      </label>
+      <div class="modal-actions">
+        <button id="settings-save" class="radar-btn">Save</button>
+        <button id="settings-close" class="radar-btn secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/blend.js"></script>
+  <script src="js/stations.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/activities.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/widgets.js"></script>
+  <script src="js/mascot.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
