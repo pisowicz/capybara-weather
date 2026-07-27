@@ -4,37 +4,54 @@
       <stop offset="0" stop-color="#45a3c4"/>
       <stop offset="1" stop-color="#1d5a72"/>
     </linearGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a172"/>
+      <stop offset="0.5" stop-color="#a97c50"/>
+      <stop offset="1" stop-color="#8a6138"/>
+    </linearGradient>
   </defs>
   <rect width="512" height="512" fill="url(#bg)"/>
   <g transform="translate(51.2 51.2) scale(0.8)"><!-- sun -->
-  <circle cx="404" cy="108" r="40" fill="#f6d55c"/>
+  <circle cx="404" cy="104" r="58" fill="#ffe38a" opacity="0.35"/>
+  <circle cx="404" cy="104" r="38" fill="#f6d55c"/>
   <g stroke="#f6d55c" stroke-width="11" stroke-linecap="round">
     <line x1="404" y1="40" x2="404" y2="22"/>
-    <line x1="336" y1="108" x2="318" y2="108"/>
-    <line x1="472" y1="108" x2="490" y2="108"/>
-    <line x1="356" y1="60" x2="343" y2="47"/>
-    <line x1="452" y1="156" x2="465" y2="169"/>
-    <line x1="452" y1="60" x2="465" y2="47"/>
-    <line x1="356" y1="156" x2="343" y2="169"/>
+    <line x1="340" y1="104" x2="322" y2="104"/>
+    <line x1="468" y1="104" x2="486" y2="104"/>
+    <line x1="358" y1="58" x2="345" y2="45"/>
+    <line x1="450" y1="150" x2="463" y2="163"/>
+    <line x1="450" y1="58" x2="463" y2="45"/>
+    <line x1="358" y1="150" x2="345" y2="163"/>
   </g>
-  <!-- capybara head -->
+  <!-- detailed capybara face -->
   <g>
-    <path d="M96 300 q-6 -118 128 -128 q120 -9 168 52 q34 44 22 108 q-12 66 -86 84 q-88 22 -164 -8 q-62 -25 -68 -108 z" fill="#b07a4e"/>
+    <!-- head -->
+    <path d="M76 470 C62 300 158 218 256 218 C354 218 450 300 436 470 Z" fill="url(#fur)"/>
+    <!-- fur tufts on top -->
+    <path d="M232 222 L244 194 L256 216 L268 192 L280 222 Z" fill="#a97c50"/>
     <!-- ears -->
-    <path d="M140 190 q-14 -34 22 -40 q30 -5 26 28 q-3 24 -24 26 z" fill="#96633c"/>
-    <path d="M330 176 q-4 -36 32 -32 q30 4 20 36 q-8 24 -28 20 z" fill="#96633c"/>
-    <!-- muzzle -->
-    <path d="M188 336 q0 -52 68 -54 q68 -2 70 50 q2 54 -68 56 q-70 2 -70 -52 z" fill="#96633c"/>
-    <ellipse cx="230" cy="330" rx="12" ry="9" fill="#3d2a1a"/>
-    <ellipse cx="286" cy="330" rx="12" ry="9" fill="#3d2a1a"/>
-    <path d="M238 366 q20 14 40 0" stroke="#3d2a1a" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M118 268 q-14 -58 44 -60 q50 -2 40 52 q-8 42 -44 42 q-32 -2 -40 -34 z" fill="#96683e"/>
+    <path d="M134 262 q-8 -38 30 -39 q33 -1 26 34 q-6 28 -29 28 q-21 -1 -27 -23 z" fill="#7a5230"/>
+    <path d="M310 260 q-10 -54 46 -52 q50 2 38 54 q-9 40 -44 38 q-32 -2 -40 -40 z" fill="#96683e"/>
+    <path d="M324 256 q-6 -36 30 -34 q32 2 24 36 q-6 26 -28 25 q-20 -1 -26 -27 z" fill="#7a5230"/>
     <!-- eyes -->
-    <circle cx="172" cy="264" r="15" fill="#3d2a1a"/>
-    <circle cx="338" cy="260" r="15" fill="#3d2a1a"/>
-    <circle cx="177" cy="259" r="5" fill="#ffffff"/>
-    <circle cx="343" cy="255" r="5" fill="#ffffff"/>
+    <ellipse cx="172" cy="330" rx="17" ry="19" fill="#2c1f12"/>
+    <circle cx="178" cy="323" r="5.5" fill="#ffffff"/>
+    <ellipse cx="340" cy="330" rx="17" ry="19" fill="#2c1f12"/>
+    <circle cx="346" cy="323" r="5.5" fill="#ffffff"/>
+    <path d="M148 306 q22 -12 44 -4 M296 302 q22 -8 44 4" stroke="#6e4a2c" stroke-width="6" fill="none" opacity="0.5" stroke-linecap="round"/>
     <!-- blush -->
-    <ellipse cx="140" cy="304" rx="22" ry="13" fill="#e59a7c" opacity="0.6"/>
-    <ellipse cx="372" cy="300" rx="22" ry="13" fill="#e59a7c" opacity="0.6"/>
+    <ellipse cx="122" cy="378" rx="26" ry="15" fill="#e59a7c" opacity="0.55"/>
+    <ellipse cx="390" cy="378" rx="26" ry="15" fill="#e59a7c" opacity="0.55"/>
+    <!-- muzzle -->
+    <path d="M186 400 Q186 356 256 356 Q326 356 326 400 L326 442 Q326 486 256 486 Q186 486 186 442 Z" fill="#8a6138"/>
+    <ellipse cx="232" cy="408" rx="9" ry="14" fill="#38261a"/>
+    <ellipse cx="280" cy="408" rx="9" ry="14" fill="#38261a"/>
+    <path d="M234 452 q22 16 44 0" stroke="#38261a" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- whisker dots -->
+    <g fill="#6e4a2c" opacity="0.6">
+      <circle cx="206" cy="430" r="3.5"/><circle cx="200" cy="444" r="3.5"/><circle cx="212" cy="452" r="3.5"/>
+      <circle cx="306" cy="430" r="3.5"/><circle cx="312" cy="444" r="3.5"/><circle cx="300" cy="452" r="3.5"/>
+    </g>
   </g>
 </g></svg>
