@@ -11,15 +11,17 @@
 
   // ---------- Palette ----------
   const F = {
-    hi: "#c9a172",   // sunlit back
-    mid: "#a97c50",  // base coat
-    lo: "#8a6138",   // belly / legs
-    dk: "#6e4a2c",   // deep shadow
-    ear: "#7a5230",  // inner ear
-    line: "#4a321e", // outline accents
-    nose: "#38261a",
-    eye: "#2c1f12",
-    blush: "#e59a7c",
+    ln: "#4a3423",     // the bold sticker outline
+    body: "#dcaf80",   // flat tan coat
+    patch: "#946b4b",  // head cap, muzzle patch, far limbs
+    deep: "#7d573c",   // far legs / far ear
+    belly: "#eed3ab",  // tummy highlight
+    ear: "#7a5230",    // inner ear
+    nose: "#4a3423",
+    eye: "#3a2a1c",
+    blush: "#f0a09b",
+    // kept for grazers / older callers
+    hi: "#c9a172", mid: "#a97c50", lo: "#8a6138", dk: "#6e4a2c",
   };
 
   // Shared fur gradient (one def per inline SVG; duplicate ids across
@@ -44,121 +46,99 @@
   // opts: eye "open"|"closed"|"happy", shades, scarf, yuzu, beanie, leaf,
   //       bird, baby (bigger eye, no whiskers), fur (texture on/off)
   function capySide(opts = {}, gid = "capyFur") {
+    const LW = 5;
     const eyeK = opts.shades ? "shades" : opts.eye || "open";
     const eye =
       eyeK === "closed"
-        ? `<path d="M203 56 q6 6 13 1" stroke="${F.eye}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+        ? `<path d="M197 55 q7 8 14 1" stroke="${F.eye}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`
         : eyeK === "happy"
-        ? `<path d="M203 58 q6 -8 13 -1" stroke="${F.eye}" stroke-width="3" fill="none" stroke-linecap="round"/>`
+        ? `<path d="M197 59 q7 -10 14 -1" stroke="${F.eye}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`
         : eyeK === "shades"
         ? ""
-        : `<ellipse cx="210" cy="56" rx="${opts.baby ? 7 : 5.5}" ry="${opts.baby ? 8 : 6.5}" fill="${F.eye}"/>
-           <circle cx="212.5" cy="52.5" r="2" fill="#fff" opacity="0.9"/>
-           <path d="M202 49 q8 -5 16 -1" stroke="${F.dk}" stroke-width="1.6" fill="none" opacity="0.55"/>`;
+        : `<circle cx="205" cy="56" r="${opts.baby ? 7.5 : 6}" fill="${F.eye}"/>
+           <circle cx="207.5" cy="53" r="2.2" fill="#fff"/>
+           <circle cx="202.5" cy="58.5" r="1.1" fill="#fff" opacity="0.8"/>`;
     const shades = opts.shades
       ? `<g>
           <path d="M186 46 C200 40 232 38 248 44" stroke="#23232e" stroke-width="5" stroke-linecap="round" fill="none"/>
-          <rect x="196" y="44" width="34" height="21" rx="10" fill="#23232e"/>
-          <rect x="236" y="43" width="12" height="17" rx="6" fill="#23232e"/>
-          <circle cx="206" cy="51" r="3.4" fill="#fff" opacity="0.6"/>
-          <path d="M196 50 C190 48 186 42 187 36" stroke="#23232e" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <rect x="194" y="44" width="34" height="21" rx="10" fill="#23232e"/>
+          <rect x="234" y="43" width="12" height="17" rx="6" fill="#23232e"/>
+          <circle cx="204" cy="51" r="3.4" fill="#fff" opacity="0.6"/>
+          <path d="M194 50 C188 48 184 42 185 36" stroke="#23232e" stroke-width="4" stroke-linecap="round" fill="none"/>
         </g>`
       : "";
     const scarf = opts.scarf
-      ? `<g>
-          <path d="M158 96 C170 108 196 112 214 104 L212 120 C192 128 166 122 152 110 Z" fill="#d64545"/>
-          <path d="M158 96 C170 108 196 112 214 104" stroke="#b93a3a" stroke-width="3" fill="none" opacity="0.6"/>
-          <path d="M176 116 L172 146 L186 146 L188 118 Z" fill="#d64545"/>
-          <path d="M173 140 l0 8 M179 141 l0 8 M185 140 l0 8" stroke="#a83232" stroke-width="3" stroke-linecap="round"/>
+      ? `<g stroke="${F.ln}" stroke-width="3" stroke-linejoin="round">
+          <path d="M158 96 C170 108 196 112 214 104 L212 120 C192 128 166 122 152 110 Z" fill="#e05a5a"/>
+          <path d="M176 116 L172 146 L186 146 L188 118 Z" fill="#e05a5a"/>
+          <path d="M173 140 l0 8 M179 141 l0 8 M185 140 l0 8" stroke-width="2.5" stroke-linecap="round"/>
         </g>`
       : "";
     const yuzu = opts.yuzu
       ? `<g transform="translate(196 8)">
-          <circle cx="0" cy="0" r="12" fill="#f2a53a"/>
+          <circle cx="0" cy="0" r="12" fill="#f2a53a" stroke="${F.ln}" stroke-width="3"/>
           <circle cx="-4" cy="-4" r="3.5" fill="#ffd27f" opacity="0.85"/>
-          <path d="M1 -12 q6 -7 13 -4 q-5 6 -13 4 z" fill="#5f9e4a"/>
-          <circle cx="1" cy="-11" r="1.5" fill="#4a7c3f"/>
+          <path d="M1 -12 q6 -7 13 -4 q-5 6 -13 4 z" fill="#5f9e4a" stroke="${F.ln}" stroke-width="2"/>
         </g>`
       : "";
     const beanie = opts.beanie
-      ? `<g>
-          <path d="M174 34 C178 12 224 10 234 30 C218 24 190 24 174 34 Z" fill="#4a7fb5"/>
-          <rect x="172" y="28" width="64" height="10" rx="5" fill="#3a6a9c"/>
+      ? `<g stroke="${F.ln}" stroke-width="3" stroke-linejoin="round">
+          <path d="M174 34 C178 12 224 10 234 30 C218 24 190 24 174 34 Z" fill="#5b8fc4"/>
+          <rect x="172" y="28" width="64" height="10" rx="5" fill="#4a7aab"/>
           <circle cx="204" cy="11" r="7" fill="#f0e6d2"/>
         </g>`
       : "";
     const leaf = opts.leaf
-      ? `<g transform="translate(120 -52)">
-          <line x1="76" y1="30" x2="66" y2="74" stroke="#4a7c3f" stroke-width="6" stroke-linecap="round"/>
-          <path d="M-24 30 Q30 -22 96 -6 Q152 8 162 30 Q104 54 52 46 Q0 38 -24 30 Z" fill="#6ab04c"/>
+      ? `<g transform="translate(120 -52)" stroke="${F.ln}" stroke-width="3.5" stroke-linejoin="round">
+          <line x1="76" y1="30" x2="66" y2="74" stroke-width="6" stroke-linecap="round"/>
+          <path d="M-24 30 Q30 -22 96 -6 Q152 8 162 30 Q104 54 52 46 Q0 38 -24 30 Z" fill="#74b657"/>
           <path d="M-16 30 Q70 14 154 28" stroke="#4a7c3f" stroke-width="3" fill="none" opacity="0.7"/>
-          <path d="M20 36 l-6 -12 M58 42 l-4 -14 M100 42 l-2 -14 M134 36 l0 -12" stroke="#4a7c3f" stroke-width="2" opacity="0.5"/>
         </g>`
       : "";
     const bird = opts.bird
-      ? `<g transform="translate(196 4)">
-          <ellipse cx="0" cy="0" rx="11" ry="9" fill="#f6d55c"/>
-          <circle cx="7" cy="-3" r="2" fill="${F.eye}"/>
+      ? `<g transform="translate(196 4)" stroke="${F.ln}" stroke-width="2.5" stroke-linejoin="round">
+          <ellipse cx="0" cy="0" rx="11" ry="9" fill="#f8dc6c"/>
+          <circle cx="7" cy="-3" r="2" fill="${F.eye}" stroke="none"/>
           <path d="M10 0 l8 3 l-8 3 z" fill="#e77b23"/>
           <path d="M-10 -1 q-7 -6 -3 -11 q6 2 6 8 z" fill="#e8b923"/>
-          <path d="M-2 8 l0 4 M3 8 l0 4" stroke="#e77b23" stroke-width="2" stroke-linecap="round"/>
         </g>`
       : "";
     const whiskers = opts.baby
       ? ""
-      : `<g stroke="${F.dk}" stroke-width="1.1" opacity="0.45" stroke-linecap="round">
-          <path d="M238 74 L256 70"/><path d="M238 79 L257 78"/><path d="M236 84 L254 86"/>
-        </g>
-        <g fill="${F.dk}" opacity="0.6">
-          <circle cx="234" cy="74" r="1"/><circle cx="236" cy="79" r="1"/><circle cx="233" cy="83" r="1"/>
-        </g>`;
-    const furTexture = opts.fur === false
-      ? ""
-      : `<g stroke="${F.hi}" stroke-width="2" stroke-linecap="round" opacity="0.5" fill="none">
-          <path d="M70 40 l7 -8 M84 37 l7 -8 M98 35 l7 -8"/>
-          <path d="M126 33 l6 -8 M140 33 l6 -8"/>
-        </g>
-        <g stroke="${F.dk}" stroke-width="2" stroke-linecap="round" opacity="0.35" fill="none">
-          <path d="M52 116 l-7 7 M66 122 l-6 7 M84 127 l-5 7"/>
-          <path d="M150 128 l-4 7 M136 127 l-5 7"/>
-          <path d="M186 100 l7 6 M182 90 l8 5"/>
+      : `<g fill="${F.ln}" opacity="0.65">
+          <circle cx="222" cy="76" r="1.4"/><circle cx="226" cy="82" r="1.4"/><circle cx="219" cy="84" r="1.4"/>
         </g>`;
 
     return `
-      <g class="capy-body">
-        <!-- ground shadow -->
-        <ellipse cx="136" cy="154" rx="112" ry="10" fill="#3a2c1c" opacity="0.16"/>
+      <g class="capy-body" stroke-linejoin="round" stroke-linecap="round">
+        <ellipse cx="136" cy="154" rx="112" ry="10" fill="#3a2c1c" opacity="0.14"/>
         <!-- far legs -->
-        <rect x="76" y="118" width="18" height="34" rx="8" fill="${F.dk}"/>
-        <rect x="170" y="118" width="18" height="34" rx="8" fill="${F.dk}"/>
+        <rect x="76" y="118" width="18" height="34" rx="8" fill="${F.deep}" stroke="${F.ln}" stroke-width="3"/>
+        <rect x="170" y="118" width="18" height="34" rx="8" fill="${F.deep}" stroke="${F.ln}" stroke-width="3"/>
         <!-- body -->
-        <path d="M196 118 C204 86 188 52 146 42 C104 33 54 44 38 72 C26 94 32 122 60 133 C98 148 166 145 196 118 Z" fill="url(#${gid})"/>
-        <!-- near legs with toes -->
-        <g fill="${F.lo}">
-          <rect x="48" y="124" width="21" height="30" rx="8"/>
-          <rect x="142" y="124" width="21" height="30" rx="8"/>
-        </g>
-        <g fill="${F.dk}">
-          <circle cx="54" cy="152.5" r="2.4"/><circle cx="60" cy="153.5" r="2.4"/><circle cx="66" cy="152.5" r="2.4"/>
-          <circle cx="148" cy="152.5" r="2.4"/><circle cx="154" cy="153.5" r="2.4"/><circle cx="160" cy="152.5" r="2.4"/>
-        </g>
-        <!-- back highlight / belly shadow -->
-        <ellipse cx="112" cy="56" rx="66" ry="16" fill="#ffffff" opacity="0.14" transform="rotate(-7 112 56)"/>
-        <ellipse cx="112" cy="126" rx="62" ry="13" fill="${F.dk}" opacity="0.2"/>
-        <!-- far ear, head, near ear -->
-        <path d="M166 32 q-3 -14 10 -14 q9 1 7 12 q-2 9 -9 9 q-6 -1 -8 -7 z" fill="${F.dk}"/>
-        <path d="M152 62 C150 34 178 16 212 21 C240 25 254 42 254 64 C254 78 251 91 241 99 C228 109 202 112 184 104 C163 96 153 82 152 62 Z" fill="url(#${gid})"/>
-        <path d="M222 30 C240 36 251 48 251.5 66 C251.8 78 249 89 241 96 C233 102 224 103 217 100 C224 80 224 52 216 33 Z" fill="${F.dk}" opacity="0.18"/>
-        <path d="M186 28 q-4 -16 11 -17 q11 0 10 13 q-1 10 -10 11 q-8 0 -11 -7 z" fill="${F.mid}"/>
+        <path d="M196 118 C204 86 188 52 146 42 C104 33 54 44 38 72 C26 94 32 122 60 133 C98 148 166 145 196 118 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="${LW}"/>
+        <ellipse cx="110" cy="114" rx="56" ry="17" fill="${F.belly}" opacity="0.85"/>
+        <!-- near legs -->
+        <rect x="48" y="124" width="21" height="30" rx="9" fill="${F.body}" stroke="${F.ln}" stroke-width="4"/>
+        <rect x="142" y="124" width="21" height="30" rx="9" fill="${F.body}" stroke="${F.ln}" stroke-width="4"/>
+        <path d="M55 147 l0 6 M62 147 l0 6 M149 147 l0 6 M156 147 l0 6" stroke="${F.ln}" stroke-width="2.4"/>
+        <!-- far ear -->
+        <path d="M166 32 q-3 -14 10 -14 q9 1 7 12 q-2 9 -9 9 q-6 -1 -8 -7 z" fill="${F.deep}" stroke="${F.ln}" stroke-width="3"/>
+        <!-- head -->
+        <path d="M152 62 C150 34 178 16 212 21 C240 25 254 42 254 64 C254 78 251 91 241 99 C228 109 202 112 184 104 C163 96 153 82 152 62 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="${LW}"/>
+        <!-- head cap -->
+        <path d="M158 52 C168 26 198 14 226 23 C242 28 250 40 252 54 C240 42 220 35 200 36 C182 37 166 43 158 52 Z" fill="${F.patch}"/>
+        <!-- near ear -->
+        <path d="M186 28 q-4 -16 11 -17 q11 0 10 13 q-1 10 -10 11 q-8 0 -11 -7 z" fill="${F.body}" stroke="${F.ln}" stroke-width="3.6"/>
         <path d="M190 26 q-2 -9 7 -10 q7 0 6 8 q-1 6 -6 7 q-5 0 -7 -5 z" fill="${F.ear}"/>
-        <!-- face -->
+        <!-- muzzle patch -->
+        <ellipse cx="228" cy="72" rx="24" ry="26" fill="${F.patch}"/>
         ${eye}
-        <ellipse cx="245" cy="57" rx="3" ry="4.4" fill="${F.nose}" transform="rotate(-14 245 57)"/>
-        <path d="M251 82 C246 89 237 91 229 88" stroke="${F.nose}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <path d="M229 88 q-3 4 -8 3" stroke="${F.nose}" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.8"/>
+        <ellipse cx="242" cy="58" rx="4" ry="5" fill="${F.nose}" transform="rotate(-12 242 58)"/>
+        <path d="M244 68 C242 78 236 83 228 84" stroke="${F.nose}" stroke-width="2.8" fill="none"/>
+        <path d="M228 84 q-4 3 -9 2" stroke="${F.nose}" stroke-width="2.4" fill="none" opacity="0.85"/>
         ${whiskers}
-        <ellipse cx="222" cy="76" rx="7" ry="4.5" fill="${F.blush}" opacity="${opts.baby ? 0.65 : 0.4}"/>
-        ${furTexture}
+        <ellipse cx="192" cy="78" rx="9" ry="6" fill="${F.blush}" opacity="${opts.baby ? 0.9 : 0.75}"/>
         ${shades}${scarf}${yuzu}${beanie}${bird}${leaf}
       </g>`;
   }
@@ -169,26 +149,32 @@
   function soakHead(opts = {}, gid = "capyFur") {
     const eye =
       opts.eye === "open"
-        ? `<ellipse cx="88" cy="52" rx="5.5" ry="6.5" fill="${F.eye}"/><circle cx="90.5" cy="49" r="2" fill="#fff"/>`
-        : `<path d="M81 54 q6 -8 13 -1" stroke="${F.eye}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+        ? `<circle cx="86" cy="52" r="6" fill="${F.eye}"/><circle cx="88.5" cy="49" r="2.2" fill="#fff"/>`
+        : opts.eye === "happy"
+        ? `<path d="M79 55 q7 -10 14 -1" stroke="${F.eye}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`
+        : `<path d="M79 51 q7 8 14 1" stroke="${F.eye}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`;
     const yuzu = opts.yuzu
       ? `<g transform="translate(74 2)">
-          <circle cx="0" cy="0" r="11" fill="#f2a53a"/>
+          <circle cx="0" cy="0" r="11" fill="#f2a53a" stroke="${F.ln}" stroke-width="3"/>
           <circle cx="-3.5" cy="-3.5" r="3" fill="#ffd27f" opacity="0.85"/>
-          <path d="M1 -11 q6 -6 12 -3 q-5 5 -12 3 z" fill="#5f9e4a"/>
+          <path d="M1 -11 q6 -6 12 -3 q-5 5 -12 3 z" fill="#5f9e4a" stroke="${F.ln}" stroke-width="2"/>
         </g>`
       : "";
     return `
-      <g class="capy-body">
-        <path d="M30 58 C28 30 56 12 90 17 C118 21 132 38 132 60 C132 74 129 87 119 95 C106 105 80 108 62 100 C41 92 31 78 30 58 Z" fill="url(#${gid})"/>
-        <path d="M100 26 C118 32 129 44 129.5 62 C129.8 74 127 85 119 92 C111 98 102 99 95 96 C102 76 102 48 94 29 Z" fill="${F.dk}" opacity="0.18"/>
-        <path d="M64 24 q-4 -16 11 -17 q11 0 10 13 q-1 10 -10 11 q-8 0 -11 -7 z" fill="${F.mid}"/>
+      <g class="capy-body" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 26 q-4 -15 10 -15 q10 1 8 13 q-2 9 -10 9 q-6 -1 -8 -7 z" fill="${F.deep}" stroke="${F.ln}" stroke-width="3"/>
+        <path d="M30 58 C28 30 56 12 90 17 C118 21 132 38 132 60 C132 74 129 87 119 95 C106 105 80 108 62 100 C41 92 31 78 30 58 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="5"/>
+        <path d="M36 48 C46 22 76 10 104 19 C120 24 128 36 130 50 C118 38 98 31 78 32 C60 33 44 39 36 48 Z" fill="${F.patch}"/>
+        <path d="M64 24 q-4 -16 11 -17 q11 0 10 13 q-1 10 -10 11 q-8 0 -11 -7 z" fill="${F.body}" stroke="${F.ln}" stroke-width="3.6"/>
         <path d="M68 22 q-2 -9 7 -10 q7 0 6 8 q-1 6 -6 7 q-5 0 -7 -5 z" fill="${F.ear}"/>
-        <path d="M44 28 q-3 -14 10 -14 q9 1 7 12 q-2 9 -9 9 q-6 -1 -8 -7 z" fill="${F.dk}"/>
+        <ellipse cx="106" cy="68" rx="23" ry="25" fill="${F.patch}"/>
         ${eye}
-        <ellipse cx="123" cy="53" rx="3" ry="4.4" fill="${F.nose}" transform="rotate(-14 123 53)"/>
-        <path d="M129 78 C124 85 115 87 107 84" stroke="${F.nose}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <ellipse cx="100" cy="72" rx="7" ry="4.5" fill="${F.blush}" opacity="0.55"/>
+        <ellipse cx="120" cy="54" rx="4" ry="5" fill="${F.nose}" transform="rotate(-12 120 54)"/>
+        <path d="M122 64 C120 74 114 79 106 80" stroke="${F.nose}" stroke-width="2.8" fill="none"/>
+        <g fill="${F.ln}" opacity="0.65">
+          <circle cx="100" cy="72" r="1.4"/><circle cx="104" cy="78" r="1.4"/><circle cx="97" cy="80" r="1.4"/>
+        </g>
+        <ellipse cx="70" cy="74" rx="9" ry="6" fill="${F.blush}" opacity="0.85"/>
         ${yuzu}
       </g>`;
   }
@@ -237,10 +223,10 @@
   };
   const duck = (x, y, s = 1) => `
     <g transform="translate(${x} ${y}) scale(${s})">
-      <path d="M-14 0 Q-16 -12 -4 -12 Q2 -12 4 -8 Q16 -10 14 -2 Q12 4 0 4 Q-10 4 -14 0 Z" fill="#f6d55c"/>
-      <circle cx="-7" cy="-14" r="7" fill="#f6d55c"/>
+      <path d="M-14 0 Q-16 -12 -4 -12 Q2 -12 4 -8 Q16 -10 14 -2 Q12 4 0 4 Q-10 4 -14 0 Z" fill="#f8dc6c" stroke="#4a3423" stroke-width="2.4" stroke-linejoin="round"/>
+      <circle cx="-7" cy="-14" r="7" fill="#f8dc6c" stroke="#4a3423" stroke-width="2.4"/>
       <circle cx="-5" cy="-15.5" r="1.4" fill="#3a281a"/>
-      <path d="M-14 -14 l-7 2 l7 3 z" fill="#e77b23"/>
+      <path d="M-14 -14 l-7 2 l7 3 z" fill="#e77b23" stroke="#4a3423" stroke-width="1.6" stroke-linejoin="round"/>
     </g>`;
   const snowCapy = (x, y, s = 1) => `
     <g transform="translate(${x} ${y}) scale(${s})">
@@ -685,60 +671,50 @@
 
   // ---------- Peeker (front view, gripping the card edge) ----------
   function peekerSVG() {
-    const gid = `cpFur${++uid}`;
-    return `<svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      ${furDefs(gid)}
-      <path d="M8 50 C6 20 22 6 40 6 C58 6 74 20 72 50 Z" fill="url(#${gid})"/>
-      <path d="M14 14 q-2 -10 8 -10 q9 0 7 9 q-2 7 -8 7 q-6 -1 -7 -6 z" fill="${F.mid}"/>
-      <path d="M17 13 q-1 -6 5 -6 q5 0 4 6 q-1 4 -4 4 q-4 0 -5 -4 z" fill="${F.ear}"/>
-      <path d="M58 13 q-2 -9 7 -9 q9 0 8 9 q-1 7 -7 7 q-6 -1 -8 -7 z" fill="${F.mid}"/>
-      <path d="M61 12 q-1 -5 4 -5 q5 0 4 5 q0 4 -4 4 q-3 0 -4 -4 z" fill="${F.ear}"/>
-      <path d="M36 6 l2 -5 l2 4 l2 -4 l2 5 z" fill="${F.mid}"/>
-      <g>
-        <ellipse cx="26" cy="27" rx="3.6" ry="4.2" fill="${F.eye}"/><circle cx="27.4" cy="25.4" r="1.2" fill="#fff"/>
-        <ellipse cx="54" cy="27" rx="3.6" ry="4.2" fill="${F.eye}"/><circle cx="55.4" cy="25.4" r="1.2" fill="#fff"/>
-        <path d="M21 22 q5 -3 9 -1 M50 21 q5 -2 9 1" stroke="${F.dk}" stroke-width="1.3" fill="none" opacity="0.5"/>
-      </g>
-      <path d="M28 32 Q28 27 40 27 Q52 27 52 32 L52 42 Q52 48 40 48 Q28 48 28 42 Z" fill="${F.lo}"/>
-      <ellipse cx="35.5" cy="36" rx="1.7" ry="2.6" fill="${F.nose}"/>
-      <ellipse cx="44.5" cy="36" rx="1.7" ry="2.6" fill="${F.nose}"/>
-      <path d="M35 44 q5 4 10 0" stroke="${F.nose}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <g fill="${F.dk}" opacity="0.55">
-        <circle cx="31" cy="40" r="0.8"/><circle cx="30" cy="43" r="0.8"/><circle cx="49" cy="40" r="0.8"/><circle cx="50" cy="43" r="0.8"/>
-      </g>
-      <ellipse cx="17" cy="35" rx="4.5" ry="3" fill="${F.blush}" opacity="0.55"/>
-      <ellipse cx="63" cy="35" rx="4.5" ry="3" fill="${F.blush}" opacity="0.55"/>
-      <g fill="${F.mid}">
-        <rect x="10" y="44" width="13" height="7" rx="3.5"/>
-        <rect x="57" y="44" width="13" height="7" rx="3.5"/>
-      </g>
-      <g stroke="${F.dk}" stroke-width="1.2" opacity="0.6">
-        <path d="M14 45 l0 5 M18 45 l0 5 M61 45 l0 5 M65 45 l0 5"/>
+    return `<svg viewBox="0 0 80 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke-linejoin="round" stroke-linecap="round">
+        <path d="M8 52 C6 20 22 6 40 6 C58 6 74 20 72 52 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="3.5"/>
+        <path d="M12 30 C14 14 26 7 40 7 C54 7 66 14 68 30 C58 20 50 17 40 17 C30 17 22 20 12 30 Z" fill="${F.patch}"/>
+        <path d="M14 14 q-2 -10 8 -10 q9 0 7 9 q-2 7 -8 7 q-6 -1 -7 -6 z" fill="${F.body}" stroke="${F.ln}" stroke-width="3"/>
+        <path d="M17 13 q-1 -6 5 -6 q5 0 4 6 q-1 4 -4 4 q-4 0 -5 -4 z" fill="${F.ear}"/>
+        <path d="M58 13 q-2 -9 7 -9 q9 0 8 9 q-1 7 -7 7 q-6 -1 -8 -7 z" fill="${F.body}" stroke="${F.ln}" stroke-width="3"/>
+        <path d="M61 12 q-1 -5 4 -5 q5 0 4 5 q0 4 -4 4 q-3 0 -4 -4 z" fill="${F.ear}"/>
+        <path d="M22 27 q4 -6 9 -1 M49 26 q4 -5 9 1" stroke="${F.eye}" stroke-width="2.6" fill="none"/>
+        <path d="M28 32 Q28 27 40 27 Q52 27 52 32 L52 43 Q52 50 40 50 Q28 50 28 43 Z" fill="${F.patch}"/>
+        <ellipse cx="35.5" cy="36" rx="1.8" ry="2.7" fill="${F.nose}"/>
+        <ellipse cx="44.5" cy="36" rx="1.8" ry="2.7" fill="${F.nose}"/>
+        <path d="M35 43 q2.5 3 5 0 q2.5 3 5 0" stroke="${F.nose}" stroke-width="2.2" fill="none"/>
+        <g fill="${F.ln}" opacity="0.6">
+          <circle cx="31" cy="40" r="0.9"/><circle cx="30" cy="43.5" r="0.9"/><circle cx="49" cy="40" r="0.9"/><circle cx="50" cy="43.5" r="0.9"/>
+        </g>
+        <ellipse cx="16.5" cy="36" rx="5" ry="3.4" fill="${F.blush}" opacity="0.85"/>
+        <ellipse cx="63.5" cy="36" rx="5" ry="3.4" fill="${F.blush}" opacity="0.85"/>
+        <rect x="9" y="45" width="14" height="8" rx="4" fill="${F.body}" stroke="${F.ln}" stroke-width="2.6"/>
+        <rect x="57" y="45" width="14" height="8" rx="4" fill="${F.body}" stroke="${F.ln}" stroke-width="2.6"/>
+        <path d="M14 46 l0 5 M18 46 l0 5 M62 46 l0 5 M66 46 l0 5" stroke="${F.ln}" stroke-width="1.4" opacity="0.7"/>
       </g>
     </svg>`;
   }
 
   // ---------- Walker (footer commuters) ----------
   function walkerSVG() {
-    const gid = `cwFur${++uid}`;
-    return `<svg viewBox="0 0 104 62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      ${furDefs(gid)}
-      <rect class="capy-leg-a" x="20" y="42" width="8" height="18" rx="4" fill="${F.dk}"/>
-      <rect class="capy-leg-b" x="62" y="42" width="8" height="18" rx="4" fill="${F.dk}"/>
-      <path d="M84 44 C90 30 84 14 64 9 C44 4 18 9 10 24 C4 36 8 48 22 52 C42 58 72 56 84 44 Z" fill="url(#${gid})"/>
-      <rect class="capy-leg-b" x="30" y="44" width="9" height="17" rx="4.5" fill="${F.lo}"/>
-      <rect class="capy-leg-a" x="70" y="44" width="9" height="17" rx="4.5" fill="${F.lo}"/>
-      <g fill="${F.dk}">
-        <circle cx="33" cy="60" r="1.3"/><circle cx="36.5" cy="60.5" r="1.3"/>
-        <circle cx="73" cy="60" r="1.3"/><circle cx="76.5" cy="60.5" r="1.3"/>
+    return `<svg viewBox="0 0 106 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke-linejoin="round" stroke-linecap="round">
+        <rect class="capy-leg-a" x="20" y="42" width="8" height="18" rx="4" fill="${F.deep}" stroke="${F.ln}" stroke-width="2"/>
+        <rect class="capy-leg-b" x="62" y="42" width="8" height="18" rx="4" fill="${F.deep}" stroke="${F.ln}" stroke-width="2"/>
+        <path d="M84 44 C90 30 84 14 64 9 C44 4 18 9 10 24 C4 36 8 48 22 52 C42 58 72 56 84 44 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="3.2"/>
+        <rect class="capy-leg-b" x="30" y="44" width="9" height="17" rx="4.5" fill="${F.body}" stroke="${F.ln}" stroke-width="2.6"/>
+        <rect class="capy-leg-a" x="70" y="44" width="9" height="17" rx="4.5" fill="${F.body}" stroke="${F.ln}" stroke-width="2.6"/>
+        <path d="M56 26 C55 12 68 4 84 7 C96 9 102 18 101 29 C100 37 96 43 88 46 C78 50 64 49 58 42 C54 36 55 30 56 26 Z" fill="${F.body}" stroke="${F.ln}" stroke-width="3.2"/>
+        <path d="M58 22 C64 10 78 4 90 9 C97 12 101 18 101 26 C93 18 82 14 72 16 C66 17 61 19 58 22 Z" fill="${F.patch}"/>
+        <path d="M66 10 q-2 -8 6 -8 q6 0 5 7 q-1 5 -5 6 q-4 0 -6 -5 z" fill="${F.body}" stroke="${F.ln}" stroke-width="2.4"/>
+        <path d="M68 9 q-1 -4 3 -4 q4 0 3 4 q0 3 -3 3 q-3 0 -3 -3 z" fill="${F.ear}"/>
+        <ellipse cx="92" cy="30" rx="11" ry="12" fill="${F.patch}"/>
+        <circle cx="80" cy="24" r="3" fill="${F.eye}"/><circle cx="81" cy="23" r="1" fill="#fff"/>
+        <ellipse cx="98.5" cy="24" rx="2" ry="2.6" fill="${F.nose}" transform="rotate(-12 98.5 24)"/>
+        <path d="M100 32 q-4 5 -10 4" stroke="${F.nose}" stroke-width="2" fill="none"/>
+        <ellipse cx="74" cy="34" rx="4.5" ry="3.2" fill="${F.blush}" opacity="0.8"/>
       </g>
-      <path d="M64 26 C63 12 76 4 92 7 C104 9 110 18 109 29 C108 37 104 43 96 46 C86 50 72 49 66 42 C62 36 63 30 64 26 Z" fill="url(#${gid})" transform="translate(-8 0)"/>
-      <path d="M74 10 q-2 -8 6 -8 q6 0 5 7 q-1 5 -5 6 q-4 0 -6 -5 z" fill="${F.mid}"/>
-      <path d="M76 9 q-1 -4 3 -4 q4 0 3 4 q0 3 -3 3 q-3 0 -3 -3 z" fill="${F.ear}"/>
-      <circle cx="86" cy="24" r="2.8" fill="${F.eye}"/><circle cx="87" cy="23" r="0.9" fill="#fff"/>
-      <ellipse cx="98.5" cy="26" rx="1.7" ry="2.4" fill="${F.nose}" transform="rotate(-12 98.5 26)"/>
-      <path d="M100 36 q-5 4 -10 2" stroke="${F.nose}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <path d="M30 16 l4 -4 M42 13 l4 -4 M54 12 l4 -4" stroke="${F.hi}" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>
     </svg>`;
   }
 
