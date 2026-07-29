@@ -101,6 +101,42 @@
   }
 
   // ---------- Loading a location ----------
+  const SNAP_KEY = "wc_snapshot";
+  let retryTimer = null;
+  let retryAttempt = 0;
+
+  function scheduleRetry(loc) {
+    const delays = [12, 25, 60, 120, 120, 120];
+    if (retryAttempt >= delays.length) return null;
+    const secs = delays[retryAttempt++];
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(() => loadLocation(loc), secs * 1000);
+    return secs;
+  }
+
+  function restoreSnapshot(loc) {
+    try {
+      const snap = JSON.parse(localStorage.getItem(SNAP_KEY));
+      if (!snap || Math.abs(snap.lat - loc.lat) > 0.05 || Math.abs(snap.lon - loc.lon) > 0.05) return false;
+      state.stations = [];
+      state.alerts = null;
+      state.correction = null;
+      state.forecast = snap.forecast;
+      state.aqi = snap.aqi;
+      state.monthlyKey = null;
+      renderAll(snap.forecast, snap.aqi);
+      $("loading").classList.add("hidden");
+      document.querySelectorAll(".hidden-until-load").forEach((el) => el.classList.remove("hidden-until-load"));
+      const when = new Date(snap.t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      const t = document.createElement("div");
+      t.className = "capy-toast on";
+      t.textContent = `\u{1F4A4} Live data is napping \u2014 showing your saved forecast from ${when}. Retrying\u2026`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 6000);
+      return true;
+    } catch (e) { return false; }
+  }
+
   async function loadLocation(loc) {
     state.location = loc;
     localStorage.setItem("wc_location", JSON.stringify(loc));
@@ -112,14 +148,21 @@
     try {
       [forecast, aqi, stations, alerts] = await Promise.all([
         API.getForecast(loc.lat, loc.lon, state.units),
-        API.getAirQuality(loc.lat, loc.lon),
+        API.getAirQuality(loc.lat, loc.lon).catch(() => null),
         Stations.nearby(loc.lat, loc.lon, state.settings.synopticToken).catch(() => []),
-        Alerts.fetchActive(loc.lat, loc.lon),
+        Alerts.fetchActive(loc.lat, loc.lon).catch(() => null),
       ]);
     } catch (err) {
-      $("loading").innerHTML = `<div class="capy-loading">🐹 The capybara went to get the forecast and came back with an orange.<br><span class="capy-err">${err.message}</span><br>It will try again if you reload.</div>`;
+      if (restoreSnapshot(loc)) { scheduleRetry(loc); return; }
+      const secs = scheduleRetry(loc);
+      $("loading").innerHTML = `<div class="capy-loading">\u{1F439} The capybara went to get the forecast and came back with an orange.<br><span class="capy-err">${err.message}</span><br>${secs ? `Trying again in ${secs} seconds\u2026 (no need to do anything)` : "Automatic retries paused \u2014 pull to refresh or reload to try again."}</div>`;
       return;
     }
+    retryAttempt = 0;
+    clearTimeout(retryTimer);
+    try {
+      localStorage.setItem(SNAP_KEY, JSON.stringify({ lat: loc.lat, lon: loc.lon, t: Date.now(), forecast, aqi }));
+    } catch (e) { /* storage full — fallback just won't be available */ }
 
     state.stations = stations;
     state.alerts = alerts;

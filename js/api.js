@@ -21,10 +21,25 @@ const API = (() => {
     { id: "icon_seamless", label: "DWD ICON", weight: 0.25, color: "#8a63d2" },
   ];
 
+  // Open-Meteo's free tier hiccups sometimes (503s, dropped connections),
+  // so every call gets up to three attempts with a short backoff before we
+  // ever show an error.
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   async function getJSON(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Request failed (${res.status}): ${url}`);
-    return res.json();
+    const delays = [0, 700, 2000];
+    let lastErr;
+    for (const d of delays) {
+      if (d) await sleep(d);
+      try {
+        const res = await fetch(url);
+        if (res.ok) return res.json();
+        lastErr = new Error(`Request failed (${res.status})`);
+        if (res.status >= 400 && res.status < 500 && res.status !== 429) throw lastErr;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+    throw lastErr;
   }
 
   function unitParams(units) {
