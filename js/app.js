@@ -205,6 +205,11 @@
     $("current-condition").textContent = w.text;
     $("scene-loc").textContent = state.location.name.split(",")[0];
     $("scene-time").textContent = `${fmtClock(c.time)} ${fc.timezone_abbreviation}`;
+    if (window.CapyHerd) {
+      const tF = state.units === "imperial" ? c.temperature_2m : c.temperature_2m * 9 / 5 + 32;
+      const wMph = state.units === "imperial" ? c.wind_speed_10m : c.wind_speed_10m * 0.621371;
+      CapyHerd.checkBadges(c, tF, wMph);
+    }
     const photoMode = (state.settings.heroStyle || "photo") === "photo" && !!window.CapyPhotos;
     if (window.CapyMascot) {
       $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700, Number(state.settings.herdSize) || 2);
@@ -1031,7 +1036,7 @@
   const SIDE_FOR_TAB = {
     today: "today", hourly: "today", tenday: "today", monthly: "today",
     allergies: "today", airquality: "today",
-    map: "map", activities: "activities", blend: "blend",
+    map: "map", activities: "activities", blend: "blend", herd: "herd",
   };
 
   function switchTab(name) {
@@ -1041,6 +1046,7 @@
       s.classList.toggle("active", s.dataset.goto === (SIDE_FOR_TAB[name] === "today" ? "today" : name))
     );
     if (name === "map") MapHub.init(state.location || DEFAULT_LOCATION);
+    if (name === "herd" && window.CapyHerd) CapyHerd.render();
     if (name === "monthly") ensureMonthly();
     window.scrollTo({ top: 0 });
   }
@@ -1194,10 +1200,13 @@
     // Every new photo introduces its capybara: name + personal motto.
     if (window.CapyPhotos) {
       CapyPhotos.onChange((p) => {
+        if (window.CapyHerd) CapyHerd.meet(p.n);
         if ((state.settings.heroStyle || "photo") !== "photo") return;
         $("capy-caption").textContent = `\u201C${p.s}\u201D \u2014 ${p.n}`;
       });
     }
+    if (window.CapyHerd) CapyHerd.updateChip();
+    $("herd-chip").addEventListener("click", (e) => { e.stopPropagation(); switchTab("herd"); });
 
     $("share-btn").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1206,7 +1215,7 @@
 
     // Tap the scene: a squeak, and one more capybara arrives.
     $("hero-card").addEventListener("click", (e) => {
-      if (!window.CapyMascot || e.target.closest("#adj-chip") || e.target.closest(".capy-photo-credit") || e.target.closest("#share-btn")) return;
+      if (!window.CapyMascot || e.target.closest("#adj-chip") || e.target.closest(".capy-photo-credit") || e.target.closest("#share-btn") || e.target.closest("#herd-chip")) return;
       const r = $("hero-card").getBoundingClientRect();
       CapyMascot.sceneTap($("hero-card"), e.clientX - r.left, e.clientY - r.top);
     });

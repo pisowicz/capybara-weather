@@ -36,6 +36,9 @@
         <button class="side-item" data-goto="blend">
           <span class="side-icon">🧭</span><span class="side-label">Models</span>
         </button>
+        <button class="side-item" data-goto="herd">
+          <span class="side-icon">🐹</span><span class="side-label">My Herd</span>
+        </button>
       </nav>
       <div class="side-bottom">
         <button id="theme-toggle" class="side-pill" title="Toggle dark mode">🌙 Theme</button>
@@ -109,6 +112,7 @@
                   <button id="adj-chip" class="adj-chip hidden"></button>
                   <div id="capy-caption" class="capy-caption"></div>
                   <button id="share-btn" class="share-chip" type="button" title="Share this capybara">&#128228; Share</button>
+                  <button id="herd-chip" class="herd-chip" type="button" title="My Herd — every capybara you've met">&#128057; 0/111</button>
                 </div>
               </div>
 
@@ -163,6 +167,22 @@
                 <div id="rail-aqi"></div>
               </div>
             </aside>
+          </div>
+        </section>
+
+        <!-- ================= MY HERD ================= -->
+        <section id="tab-herd" class="tab-panel">
+          <div class="page-head">
+            <h1 class="page-title">My Herd</h1>
+            <p class="asof-line">&#128057; <span id="herd-count"></span> &middot; every capybara that has greeted you joins your herd, forever</p>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Weather Badges <span class="card-subtitle">earned by opening the app in interesting weather</span></h2>
+            <div id="herd-badges" class="herd-badges"></div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">The Herd <span class="card-subtitle">tap the Today page and wait — a new one arrives every 30 seconds</span></h2>
+            <div id="herd-grid" class="herd-grid"></div>
           </div>
         </section>
 
@@ -369,6 +389,7 @@
   <script src="js/widgets.js"></script>
   <script src="js/mascot.js"></script>
   <script src="js/photos.js"></script>
+  <script src="js/herd.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

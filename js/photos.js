@@ -1085,5 +1085,5 @@ window.CapyPhotos = (function () {
   const onChange = (cb) => { changeCb = cb; if (lastShown) cb(lastShown); };
   const current = () => (lastShown ? { ...lastShown, url: lastUrl } : null);
 
-  return { start, stop, onChange, current, count: PHOTOS.length };
+  return { start, stop, onChange, current, all: () => PHOTOS, count: PHOTOS.length };
 })();

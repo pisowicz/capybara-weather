@@ -27,6 +27,9 @@ A capybara-themed sibling of [Beezer Weather](https://github.com/pisowicz/Beezer
   photos of real capybaras (Wikimedia Commons, all free licenses, credited in-app with
   links to the source), crossfading every 30 seconds; switch back to the hand-drawn
   herd in Settings. The cartoon scene remains as the offline fallback.
+- **My Herd** — every capybara that greets you joins your collection (x/111), with
+  weather badges for opening the app in rain, storms, snow, fog, heat, cold, wind, or
+  at night, and milestone toasts along the way
 - **Herd controls** — a Herd Size setting (Cozy / Big / MAXIMUM CAPYBARA), and tap the
   scene to hear a squeak and summon one more capybara, who walks through the weather
 - **Nearby Stations** — live observations from real weather stations around you (NWS official
