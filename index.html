@@ -96,6 +96,7 @@
               <!-- Immersive capybara scene (Kitty Weather style) -->
               <div class="capy-scene-wrap" id="hero-card">
                 <div id="capy-scene" aria-hidden="true"></div>
+                <div id="capy-photo-stage" class="hidden"></div>
                 <div class="scene-overlay">
                   <div class="scene-loc" id="scene-loc"></div>
                   <div class="scene-time" id="scene-time"></div>
@@ -337,6 +338,12 @@
       <label class="settings-field">Pin my station <span class="settings-hint">a station ID from the nearby list to always show first</span>
         <input id="set-mystation" type="text" placeholder="e.g. KNYC or D1234 (optional)" />
       </label>
+      <label class="settings-field">Hero style <span class="settings-hint">real rescue-grade cuteness, or the hand-drawn herd</span>
+        <select id="set-hero">
+          <option value="photo">Real capybaras — rotating photos</option>
+          <option value="cartoon">Cartoon herd — hand-drawn scenes</option>
+        </select>
+      </label>
       <label class="settings-field">Herd size <span class="settings-hint">how many capybaras live in your forecast — also, try tapping the sky</span>
         <select id="set-herd">
           <option value="1">Cozy — just the family</option>
@@ -360,6 +367,7 @@
   <script src="js/map.js"></script>
   <script src="js/widgets.js"></script>
   <script src="js/mascot.js"></script>
+  <script src="js/photos.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

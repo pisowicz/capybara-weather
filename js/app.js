@@ -209,6 +209,10 @@
       $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700, Number(state.settings.herdSize) || 2);
       $("capy-caption").textContent = CapyMascot.caption(c.weather_code, c.is_day);
     }
+    if (window.CapyPhotos) {
+      if ((state.settings.heroStyle || "photo") === "photo") CapyPhotos.start($("hero-card"));
+      else CapyPhotos.stop();
+    }
     $("hero-feels").textContent = fmtTemp(c.apparent_temperature);
     $("hero-high").textContent = fmtTemp(fc.daily.temperature_2m_max[0]);
     $("hero-low").textContent = fmtTemp(fc.daily.temperature_2m_min[0]);
@@ -1066,6 +1070,7 @@
     $("set-synoptic").value = state.settings.synopticToken || "";
     $("set-mystation").value = state.settings.myStation || "";
     $("set-herd").value = String(state.settings.herdSize || 2);
+    $("set-hero").value = state.settings.heroStyle || "photo";
     $("settings-modal").classList.remove("hidden");
   }
 
@@ -1073,6 +1078,7 @@
     state.settings.synopticToken = $("set-synoptic").value.trim();
     state.settings.myStation = $("set-mystation").value.trim();
     state.settings.herdSize = Number($("set-herd").value) || 2;
+    state.settings.heroStyle = $("set-hero").value;
     localStorage.setItem("wc_settings", JSON.stringify(state.settings));
     $("settings-modal").classList.add("hidden");
     loadLocation(state.location); // refetch with new sources
@@ -1083,7 +1089,7 @@
     initTheme();
     // Tap the scene: a squeak, and one more capybara arrives.
     $("hero-card").addEventListener("click", (e) => {
-      if (!window.CapyMascot || e.target.closest("#adj-chip")) return;
+      if (!window.CapyMascot || e.target.closest("#adj-chip") || e.target.closest(".capy-photo-credit")) return;
       const r = $("hero-card").getBoundingClientRect();
       CapyMascot.sceneTap($("hero-card"), e.clientX - r.left, e.clientY - r.top);
     });

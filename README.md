@@ -23,6 +23,10 @@ A capybara-themed sibling of [Beezer Weather](https://github.com/pisowicz/Beezer
   morning/afternoon/evening/overnight forecast, and a gauge-tile grid (feels-like, wind
   compass, humidity, UV dial, air quality, dew point, pressure, visibility, cloud cover,
   sun arc, moon phase), plus a Health & Activities rail — and no ads, anywhere
+- **Real capybara hero** — the Today scene shows a rotating gallery of 111 curated
+  photos of real capybaras (Wikimedia Commons, all free licenses, credited in-app with
+  links to the source), crossfading every 30 seconds; switch back to the hand-drawn
+  herd in Settings. The cartoon scene remains as the offline fallback.
 - **Herd controls** — a Herd Size setting (Cozy / Big / MAXIMUM CAPYBARA), and tap the
   scene to hear a squeak and summon one more capybara, who walks through the weather
 - **Nearby Stations** — live observations from real weather stations around you (NWS official
