@@ -1046,7 +1046,7 @@ window.CapyPhotos = (function () {
       layers[back].classList.add("on");
       layers[front].classList.remove("on");
       front = back;
-      const credit = stage.querySelector(".capy-photo-credit-slot");
+      const credit = document.querySelector(".capy-photo-credit-slot");
       if (credit) credit.innerHTML = creditHTML(p);
       stage.classList.add("capy-photos-live");
       lastShown = p;
@@ -1061,7 +1061,7 @@ window.CapyPhotos = (function () {
     if (!stage) {
       stage = document.getElementById("capy-photo-stage");
       if (!stage) return;
-      stage.innerHTML = `<div class="capy-photo"></div><div class="capy-photo"></div><span class="capy-photo-credit-slot"></span>`;
+      stage.innerHTML = `<div class="capy-photo"></div><div class="capy-photo"></div>`;
       layers = Array.from(stage.querySelectorAll(".capy-photo"));
       order = shuffle(PHOTOS.map((_, i) => i));
     }

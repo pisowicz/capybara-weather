@@ -983,3 +983,53 @@ body {
 }
 .place-chip:hover { background: var(--hover); }
 .place-chip span { font-size: 0.76rem; color: var(--muted); }
+
+/* ---------- Full-page capybara background (Kitty Weather architecture) ---------- */
+#capy-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #46596b;
+  overflow: hidden;
+}
+#capy-bg #capy-scene, #capy-bg #capy-scene svg,
+#capy-bg #capy-photo-stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+#capy-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 18, 28, 0.42) 0%, rgba(8, 18, 28, 0.12) 26%, rgba(8, 18, 28, 0.16) 60%, rgba(8, 18, 28, 0.45) 100%);
+}
+.capy-photos-live::after { content: none; }
+
+body { background: transparent; }
+.app { position: relative; z-index: 1; }
+
+/* The hero is now just floating text over the shared background */
+.capy-scene-wrap {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  min-height: min(76svh, 700px);
+}
+.scene-overlay { text-shadow: 0 1px 4px rgba(10, 20, 30, 0.5), 0 4px 20px rgba(10, 20, 30, 0.35); }
+.capy-photo-credit { bottom: -1.2rem; right: 0.2rem; }
+
+/* Text that sits directly on the photo */
+.page-title { color: #fff; text-shadow: 0 1px 8px rgba(10, 20, 30, 0.55); }
+.asof-line, .section-title { color: #fff; text-shadow: 0 1px 6px rgba(10, 20, 30, 0.55); }
+.asof-line { opacity: 0.92; }
+
+/* Solid footing for the footer so the staff commute stays readable */
+.site-footer { background: var(--page); position: relative; border-radius: 14px 14px 0 0; }
+
+@media (max-width: 700px) {
+  .capy-scene-wrap { min-height: 72svh; }
+}
+
+/* Topbar: frosted glass over the photo */
+:root { --glass: rgba(245, 246, 247, 0.38); }
+:root[data-theme="dark"] { --glass: rgba(16, 19, 34, 0.45); }
+.topbar { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }

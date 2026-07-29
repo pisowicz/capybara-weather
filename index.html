@@ -16,6 +16,10 @@
   <link rel="apple-touch-icon" href="icons/icon-180.png" />
 </head>
 <body>
+  <div id="capy-bg" aria-hidden="true">
+    <div id="capy-scene"></div>
+    <div id="capy-photo-stage" class="hidden"></div>
+  </div>
   <div class="app">
 
     <!-- ============ LEFT SIDEBAR (weather.com-style) ============ -->
@@ -99,10 +103,10 @@
 
           <div class="today-grid">
             <div class="today-main">
-              <!-- Immersive capybara scene (Kitty Weather style) -->
+              <!-- Immersive hero: the capybara lives in the fixed page background;
+                   this block is just the floating weather text -->
               <div class="capy-scene-wrap" id="hero-card">
-                <div id="capy-scene" aria-hidden="true"></div>
-                <div id="capy-photo-stage" class="hidden"></div>
+                <span class="capy-photo-credit-slot"></span>
                 <div class="scene-overlay">
                   <div class="scene-loc" id="scene-loc"></div>
                   <div class="scene-time" id="scene-time"></div>
