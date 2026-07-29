@@ -205,12 +205,13 @@
     $("current-condition").textContent = w.text;
     $("scene-loc").textContent = state.location.name.split(",")[0];
     $("scene-time").textContent = `${fmtClock(c.time)} ${fc.timezone_abbreviation}`;
+    const photoMode = (state.settings.heroStyle || "photo") === "photo" && !!window.CapyPhotos;
     if (window.CapyMascot) {
       $("capy-scene").innerHTML = CapyMascot.scene(c.weather_code, c.is_day, window.innerWidth > 700, Number(state.settings.herdSize) || 2);
-      $("capy-caption").textContent = CapyMascot.caption(c.weather_code, c.is_day);
+      if (!photoMode) $("capy-caption").textContent = CapyMascot.caption(c.weather_code, c.is_day);
     }
     if (window.CapyPhotos) {
-      if ((state.settings.heroStyle || "photo") === "photo") CapyPhotos.start($("hero-card"));
+      if (photoMode) CapyPhotos.start($("hero-card"));
       else CapyPhotos.stop();
     }
     $("hero-feels").textContent = fmtTemp(c.apparent_temperature);
@@ -1084,12 +1085,128 @@
     loadLocation(state.location); // refetch with new sources
   }
 
+  // ---------- Share card ----------
+  // Renders the current hero (photo or cartoon scene) + weather + the
+  // capybara's motto onto a canvas and hands it to the system share sheet
+  // (or downloads it where Web Share isn't available).
+  async function shareCapyCard() {
+    const fc = state.forecast;
+    if (!fc) return;
+    const c = fc.current;
+    const W = 1080, H = 1350;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+
+    const photo = (state.settings.heroStyle || "photo") === "photo" && window.CapyPhotos ? CapyPhotos.current() : null;
+    const loadImg = (src, cors) => new Promise((res, rej) => {
+      const im = new Image();
+      if (cors) im.crossOrigin = "anonymous";
+      im.onload = () => res(im);
+      im.onerror = rej;
+      im.src = src;
+    });
+
+    try {
+      let im;
+      if (photo) {
+        const hi = photo.u.replace("/200px-", `/${Math.min(photo.mw, 1280)}px-`);
+        im = await loadImg(hi, true).catch(() => loadImg(photo.url, true));
+      } else {
+        const svg = CapyMascot.scene(c.weather_code, c.is_day, false, Number(state.settings.herdSize) || 2);
+        im = await loadImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg), false);
+      }
+      // cover-crop, biased toward the top third where the faces are
+      const s = Math.max(W / im.width, H / im.height);
+      const dw = im.width * s, dh = im.height * s;
+      ctx.drawImage(im, (W - dw) / 2, Math.min(0, -(dh - H) * 0.32), dw, dh);
+    } catch (e) {
+      ctx.fillStyle = "#2f8fd0";
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    let g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "rgba(8,18,28,0.55)");
+    g.addColorStop(0.35, "rgba(8,18,28,0.05)");
+    g.addColorStop(0.62, "rgba(8,18,28,0.05)");
+    g.addColorStop(1, "rgba(8,18,28,0.72)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    const w = wmo(c.weather_code, c.is_day);
+    const font = (weight, size) => `${weight} ${size}px -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,0.45)";
+    ctx.shadowBlur = 14;
+    ctx.font = font(300, 64);
+    ctx.fillText(state.location.name.split(",")[0], W / 2, 110);
+    ctx.font = font(200, 230);
+    ctx.fillText(fmtTemp(c.temperature_2m), W / 2, 330);
+    ctx.font = font(400, 50);
+    ctx.fillText(`\u2191 ${fmtTemp(fc.daily.temperature_2m_max[0])}   \u2193 ${fmtTemp(fc.daily.temperature_2m_min[0])}   ${w.text}`, W / 2, 405);
+
+    const motto = photo ? `\u201C${photo.s}\u201D` : `\u201C${CapyMascot.wisdom()}\u201D`;
+    const who = photo ? `\u2014 ${photo.n}, capybara` : "\u2014 the capybara";
+    ctx.font = font(600, 46);
+    const words = motto.split(" ");
+    const lines = [];
+    let line = "";
+    for (const word of words) {
+      const t = line ? line + " " + word : word;
+      if (ctx.measureText(t).width > W - 140) { lines.push(line); line = word; }
+      else line = t;
+    }
+    if (line) lines.push(line);
+    let y = H - 195 - (lines.length - 1) * 56;
+    for (const l of lines) { ctx.fillText(l, W / 2, y); y += 56; }
+    ctx.font = font(500, 38);
+    ctx.fillText(who, W / 2, y + 8);
+
+    ctx.shadowBlur = 6;
+    ctx.font = font(400, 26);
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.fillText("Capybara Weather \u00B7 pisowicz.github.io/capybara-weather", W / 2, H - 28);
+    if (photo) {
+      ctx.textAlign = "right";
+      ctx.font = font(400, 22);
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.fillText(`\u{1F4F7} ${photo.a} \u00B7 ${photo.l} \u00B7 Wikimedia Commons`, W - 24, H - 64);
+    }
+
+    const blob = await new Promise((res) => cv.toBlob(res, "image/png"));
+    if (!blob) return;
+    const file = new File([blob], "capybara-weather.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Capybara Weather" }).catch(() => {});
+    } else {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "capybara-weather.png";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+  }
+
   // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", () => {
     initTheme();
+    // Every new photo introduces its capybara: name + personal motto.
+    if (window.CapyPhotos) {
+      CapyPhotos.onChange((p) => {
+        if ((state.settings.heroStyle || "photo") !== "photo") return;
+        $("capy-caption").textContent = `\u201C${p.s}\u201D \u2014 ${p.n}`;
+      });
+    }
+
+    $("share-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      shareCapyCard().catch(() => {});
+    });
+
     // Tap the scene: a squeak, and one more capybara arrives.
     $("hero-card").addEventListener("click", (e) => {
-      if (!window.CapyMascot || e.target.closest("#adj-chip") || e.target.closest(".capy-photo-credit")) return;
+      if (!window.CapyMascot || e.target.closest("#adj-chip") || e.target.closest(".capy-photo-credit") || e.target.closest("#share-btn")) return;
       const r = $("hero-card").getBoundingClientRect();
       CapyMascot.sceneTap($("hero-card"), e.clientX - r.left, e.clientY - r.top);
     });

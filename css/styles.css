@@ -838,3 +838,22 @@ body {
 .scene-overlay { pointer-events: none; }
 .scene-overlay .adj-chip { pointer-events: auto; }
 .capy-caption { bottom: 1.5rem; }
+
+/* ---------- Share chip ---------- */
+.share-chip {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 4;
+  pointer-events: auto;
+  background: rgba(10, 20, 30, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.share-chip:hover { background: rgba(10, 20, 30, 0.55); }
