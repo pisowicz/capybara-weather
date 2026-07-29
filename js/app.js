@@ -1036,7 +1036,7 @@
   const SIDE_FOR_TAB = {
     today: "today", hourly: "today", tenday: "today", monthly: "today",
     allergies: "today", airquality: "today",
-    map: "map", activities: "activities", blend: "blend", herd: "herd",
+    map: "map", activities: "activities", blend: "blend", herd: "herd", capylife: "capylife",
   };
 
   function switchTab(name) {
@@ -1047,6 +1047,12 @@
     );
     if (name === "map") MapHub.init(state.location || DEFAULT_LOCATION);
     if (name === "herd" && window.CapyHerd) CapyHerd.render();
+    if (name === "capylife" && window.CapyLife) {
+      CapyLife.render((place) => {
+        switchTab("today");
+        loadLocation({ name: `${place.name}`, lat: place.lat, lon: place.lon });
+      });
+    }
     if (name === "monthly") ensureMonthly();
     window.scrollTo({ top: 0 });
   }
@@ -1205,7 +1211,21 @@
         $("capy-caption").textContent = `\u201C${p.s}\u201D \u2014 ${p.n}`;
       });
     }
-    if (window.CapyHerd) CapyHerd.updateChip();
+    if (window.CapyHerd) { CapyHerd.updateChip(); CapyHerd.touchDay(); }
+    if (window.CapyMascot && window.CapyHerd) {
+      const sn = CapyMascot.season();
+      const seenKey = "wc_season_seen";
+      if (sn && localStorage.getItem(seenKey) !== sn + new Date().getFullYear()) {
+        localStorage.setItem(seenKey, sn + new Date().getFullYear());
+        const msg = {
+          yuzu: "\u{1F34A} Yuzu season has begun. The baths are ready.",
+          sakura: "\u{1F338} Blossom season \u2014 the scenes are snowing petals.",
+          autumn: "\u{1F342} Leaf season. The herd is watching them fall.",
+          birthday: "\u{1F382} It's the herd's birthday today!",
+        }[sn];
+        setTimeout(() => { const t = document.createElement("div"); t.className = "capy-toast on"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 5200); }, 2500);
+      }
+    }
     $("herd-chip").addEventListener("click", (e) => { e.stopPropagation(); switchTab("herd"); });
 
     $("share-btn").addEventListener("click", (e) => {

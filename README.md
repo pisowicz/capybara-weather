@@ -30,6 +30,14 @@ A capybara-themed sibling of [Beezer Weather](https://github.com/pisowicz/Beezer
 - **My Herd** — every capybara that greets you joins your collection (x/111), with
   weather badges for opening the app in rain, storms, snow, fog, heat, cold, wind, or
   at night, and milestone toasts along the way
+- **Capy Life** — 37 real capybara facts, a live capybara-cam directory, and one-tap
+  weather for famous capybara places (Nagasaki Bio Park, the Pantanal, Ibera...)
+- **Seasonal events** — yuzu floating in the winter onsen, cherry-blossom petals in
+  spring, falling leaves in October, confetti on the herd's birthday (July 27)
+- **Streaks** — gentle daily check-in streaks; miss a day and the capybara simply
+  waited calmly
+- **Sticker pack** — 8 transparent PNGs in `stickers/` ready for an iMessage pack
+  (see `docs/APPSTORE.md` for the full App Store path)
 - **Herd controls** — a Herd Size setting (Cozy / Big / MAXIMUM CAPYBARA), and tap the
   scene to hear a squeak and summon one more capybara, who walks through the weather
 - **Nearby Stations** — live observations from real weather stations around you (NWS official

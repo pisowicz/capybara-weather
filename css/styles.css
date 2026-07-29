@@ -941,3 +941,45 @@ body {
   text-align: center;
 }
 .capy-toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Capy Life ---------- */
+.capy-fact { font-size: 1.05rem; line-height: 1.55; margin-bottom: 0.9rem; }
+.btn-secondary {
+  background: var(--inner);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.btn-secondary:hover { background: var(--hover); }
+.capy-cams { display: flex; flex-direction: column; gap: 0.5rem; }
+.cam-row {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: var(--inner);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.cam-row:hover { background: var(--hover); }
+.cam-ico { font-size: 1.4rem; }
+.cam-body { display: flex; flex-direction: column; flex: 1; }
+.cam-note { font-size: 0.78rem; color: var(--muted); }
+.cam-go { color: var(--muted); font-size: 1.3rem; }
+.capy-places { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.55rem; }
+.place-chip {
+  background: var(--inner);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+.place-chip:hover { background: var(--hover); }
+.place-chip span { font-size: 0.76rem; color: var(--muted); }

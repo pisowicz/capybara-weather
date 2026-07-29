@@ -501,6 +501,65 @@
       ${wide ? butterfly(cx - 330, gy - 150) : ""}`;
   }
 
+  // ---------- Seasons ----------
+  // Date-driven event dressing for the hand-drawn scenes.
+  function season(d = new Date()) {
+    const m = d.getMonth(), day = d.getDate();
+    if (m === 11 || (m === 0 && day <= 7)) return "yuzu";      // yuzu bath season
+    if ((m === 2 && day >= 20) || m === 3) return "sakura";    // cherry blossoms
+    if (m === 9) return "autumn";                              // falling leaves
+    if (m === 6 && day === 27) return "birthday";              // the herd's birthday
+    return null;
+  }
+
+  function seasonalLayer(g, W, H) {
+    const sn = season();
+    if (!sn) return "";
+    if (sn === "sakura") {
+      let d = "";
+      for (let i = 0; i < 14; i++) {
+        const x = 10 + ((i * 67) % (W - 15)), y = ((i * 89) % 320), delay = (i * 0.4) % 3.5;
+        d += `<ellipse class="capy-flake-far" style="animation-delay:${delay}s" cx="${x}" cy="${y}" rx="4" ry="2.6" fill="#f6b8c8" opacity="0.9" transform="rotate(${(i * 37) % 360} ${x} ${y})"/>`;
+      }
+      return d;
+    }
+    if (sn === "autumn") {
+      let d = "";
+      const cols = ["#d98e4a", "#c26b3a", "#e0aa4f"];
+      for (let i = 0; i < 12; i++) {
+        const x = 12 + ((i * 73) % (W - 18)), y = ((i * 97) % 300), delay = (i * 0.5) % 4;
+        d += `<ellipse class="capy-flake-far" style="animation-delay:${delay}s" cx="${x}" cy="${y}" rx="5" ry="3" fill="${cols[i % 3]}" opacity="0.85" transform="rotate(${(i * 53) % 360} ${x} ${y})"/>`;
+      }
+      return d;
+    }
+    if (sn === "yuzu" && g === "rain") {
+      // extra yuzu bobbing in the onsen
+      const poolTop = H - 170;
+      return [0.22, 0.4, 0.62].map((f, i) =>
+        `<g class="capy-body" style="animation-delay:${i * 0.6}s" transform="translate(${Math.round(W * f)} ${poolTop + 46})">
+          <circle cx="0" cy="0" r="10" fill="#f2a53a" stroke="#4a3423" stroke-width="2.5"/>
+          <path d="M1 -10 q5 -5 11 -3 q-4 5 -11 3 z" fill="#5f9e4a" stroke="#4a3423" stroke-width="1.6"/>
+        </g>`).join("");
+    }
+    if (sn === "birthday") {
+      let d = "";
+      const cols = ["#e8788a", "#f6d55c", "#6ab04c", "#5b8fc4", "#c99df0"];
+      for (let i = 0; i < 16; i++) {
+        const x = 8 + ((i * 61) % (W - 12)), y = ((i * 79) % 340), delay = (i * 0.3) % 2.5;
+        d += `<rect class="capy-flake-far" style="animation-delay:${delay}s" x="${x}" y="${y}" width="7" height="4" fill="${cols[i % 5]}" opacity="0.9" transform="rotate(${(i * 41) % 360} ${x} ${y})"/>`;
+      }
+      return d;
+    }
+    return "";
+  }
+
+  const SEASON_CAPTIONS = {
+    yuzu: ["It's yuzu season. The bath is medicinal. The medicine is joy.", "Citrus in the tub. As the ancients intended."],
+    sakura: ["Petal season. The pond is wearing pink.", "The blossoms fall at exactly my speed."],
+    autumn: ["The leaves are falling at a respectful pace.", "Crunch season. Every path is a snack path."],
+    birthday: ["It's our birthday. We are all one nap older.", "Cake is just warm bread. We celebrate with grass."],
+  };
+
   // ---------- The immersive scene ----------
   // At herd level 3, the herd overflows the frame edges.
   function edgeExtras(g, W, H) {
@@ -528,6 +587,7 @@
       </linearGradient></defs>
       <rect width="${W}" height="${H}" fill="url(#csSky-${g})"/>
       ${ambient(g, W)}
+      ${seasonalLayer(g, W, H)}
       ${foreground(g, W, H, herd)}
       ${herd >= 3 ? edgeExtras(g, W, H) : ""}
     </svg>`;
@@ -577,6 +637,11 @@
     ],
   };
   function caption(code, isDay) {
+    const sn = season();
+    if (sn && Math.random() < 0.35) {
+      const sc = SEASON_CAPTIONS[sn];
+      return sc[Math.floor(Math.random() * sc.length)];
+    }
     const arr = CAPTIONS[groupFor(Number(code), Number(isDay))];
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -837,5 +902,5 @@
     decorate();
   }
 
-  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate, scene, caption, sceneTap };
+  window.CapyMascot = { render, groupFor, wisdom, loadingHTML, comfort, decorate, scene, caption, sceneTap, season };
 })();

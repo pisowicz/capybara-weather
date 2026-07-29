@@ -39,6 +39,9 @@
         <button class="side-item" data-goto="herd">
           <span class="side-icon">🐹</span><span class="side-label">My Herd</span>
         </button>
+        <button class="side-item" data-goto="capylife">
+          <span class="side-icon">🍊</span><span class="side-label">Capy Life</span>
+        </button>
       </nav>
       <div class="side-bottom">
         <button id="theme-toggle" class="side-pill" title="Toggle dark mode">🌙 Theme</button>
@@ -167,6 +170,27 @@
                 <div id="rail-aqi"></div>
               </div>
             </aside>
+          </div>
+        </section>
+
+        <!-- ================= CAPY LIFE ================= -->
+        <section id="tab-capylife" class="tab-panel">
+          <div class="page-head">
+            <h1 class="page-title">Capy Life</h1>
+            <p class="asof-line">&#127818; facts, live cams, and the weather where famous capybaras live</p>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Did You Know <span class="card-subtitle">real capybara science, lightly narrated</span></h2>
+            <p id="capy-fact" class="capy-fact"></p>
+            <button id="capy-fact-next" class="btn-secondary" type="button">Another fact &#128057;</button>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Live Capybara Cams <span class="card-subtitle">real capybaras, streaming somewhere right now</span></h2>
+            <div id="capy-cams" class="capy-cams"></div>
+          </div>
+          <div class="card">
+            <h2 class="card-title">Capybara Pilgrimage Weather <span class="card-subtitle">tap a place to check conditions for the local herd</span></h2>
+            <div id="capy-places" class="capy-places"></div>
           </div>
         </section>
 
@@ -390,6 +414,7 @@
   <script src="js/mascot.js"></script>
   <script src="js/photos.js"></script>
   <script src="js/herd.js"></script>
+  <script src="js/capylife.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

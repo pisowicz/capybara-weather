@@ -73,6 +73,38 @@ window.CapyHerd = (function () {
 
   const count = () => Object.keys(met).length;
 
+  // ---------- Gentle streaks ----------
+  // Consecutive days the app was opened. No punishment for missing one:
+  // the capybara simply waited calmly.
+  const DAYS_KEY = "wc_days";
+  const BEST_KEY = "wc_streak_best";
+
+  function touchDay() {
+    const days = (() => { try { return JSON.parse(localStorage.getItem(DAYS_KEY)) || []; } catch (e) { return []; } })();
+    const d = new Date();
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const isNewDay = !days.includes(key);
+    if (isNewDay) {
+      days.push(key);
+      while (days.length > 400) days.shift();
+      localStorage.setItem(DAYS_KEY, JSON.stringify(days));
+    }
+    // count back from today
+    let streak = 0;
+    const t = new Date();
+    for (;;) {
+      const k = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+      if (days.includes(k)) { streak++; t.setDate(t.getDate() - 1); }
+      else break;
+    }
+    const best = Math.max(streak, Number(localStorage.getItem(BEST_KEY)) || 0);
+    localStorage.setItem(BEST_KEY, String(best));
+    if (isNewDay && (streak === 7 || streak === 30 || streak === 100)) {
+      toast(`\u{1F525} ${streak} days of weather together. The herd notices.`);
+    }
+    return { streak, best };
+  }
+
   function updateChip() {
     const chip = document.getElementById("herd-chip");
     if (chip) chip.textContent = `🐹 ${count()}/111`;
@@ -85,7 +117,10 @@ window.CapyHerd = (function () {
     if (!grid || !window.CapyPhotos) return;
     const photos = CapyPhotos.all();
 
-    if (title) title.textContent = `${count()} of ${photos.length} capybaras met`;
+    if (title) {
+      const st = touchDay();
+      title.textContent = `${count()} of ${photos.length} capybaras met \u00B7 \u{1F525} ${st.streak}-day streak (best ${st.best})`;
+    }
 
     badgeRow.innerHTML = BADGES.map((b) => {
       const got = !!badges[b.id];
@@ -113,5 +148,5 @@ window.CapyHerd = (function () {
     }).join("");
   }
 
-  return { meet, checkBadges, render, count, updateChip };
+  return { meet, checkBadges, render, count, updateChip, touchDay };
 })();
