@@ -1,7 +1,7 @@
 /* Capybara Weather service worker: offline shell + last-known data. */
 
-const STATIC_CACHE = "capy-static-v9";
-const DATA_CACHE = "capy-data-v9";
+const STATIC_CACHE = "capy-static-v10";
+const DATA_CACHE = "capy-data-v10";
 
 const SHELL = [
   "./",
@@ -72,16 +72,38 @@ self.addEventListener("fetch", (e) => {
   }
 
   if (url.origin === self.location.origin) {
-    e.respondWith(
-      caches.match(e.request).then(
-        (cached) =>
-          cached ||
-          fetch(e.request).then((res) => {
+    // Navigations are network-first so a deploy shows up on the next visit;
+    // the cached shell is only the offline fallback.
+    if (e.request.mode === "navigate") {
+      e.respondWith(
+        fetch(e.request)
+          .then((res) => {
             const copy = res.clone();
             caches.open(STATIC_CACHE).then((c) => c.put(e.request, copy));
             return res;
           })
-      )
+          .catch(() =>
+            caches.match(e.request).then((r) => r || caches.match("index.html")).then((r) => r || caches.match("./"))
+          )
+      );
+      return;
+    }
+    // Static assets: stale-while-revalidate — serve the cache instantly but
+    // refresh it in the background so updates converge even without a
+    // service-worker version bump.
+    e.respondWith(
+      caches.match(e.request).then((cached) => {
+        const net = fetch(e.request)
+          .then((res) => {
+            if (res && res.ok) {
+              const copy = res.clone();
+              caches.open(STATIC_CACHE).then((c) => c.put(e.request, copy));
+            }
+            return res;
+          })
+          .catch(() => cached);
+        return cached || net;
+      })
     );
   }
 });

@@ -1150,7 +1150,25 @@
     MapHub.wireControls();
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").catch(() => { /* offline support is best-effort */ });
+      // When a new service worker takes over an already-controlled page,
+      // reload once so the user actually sees the new version.
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloaded || !hadController) return;
+        reloaded = true;
+        location.reload();
+      });
+      navigator.serviceWorker
+        .register("sw.js")
+        .then((reg) => {
+          // Re-check for updates whenever the app returns to the foreground
+          // (installed PWAs can otherwise sit on a stale worker for days).
+          document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) reg.update().catch(() => {});
+          });
+        })
+        .catch(() => { /* offline support is best-effort */ });
     }
 
     // First visit: try geolocation before falling back to the default city.
