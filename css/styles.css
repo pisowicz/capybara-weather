@@ -821,10 +821,22 @@ body {
 #capy-photo-stage { position: absolute; inset: 0; }
 .capy-photo {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center 32%;
   opacity: 0; transition: opacity 1.4s ease;
+  overflow: hidden;
 }
 .capy-photo.on { opacity: 1; }
+/* Blurred self-fill behind, whole photo centered and scaled to fit in front —
+   nothing gets cropped away on a portrait phone. */
+.capy-photo .cp-blur {
+  position: absolute; inset: -48px;
+  background-size: cover; background-position: center;
+  filter: blur(28px) saturate(1.05) brightness(0.82);
+  transform: scale(1.12);
+}
+.capy-photo .cp-main {
+  position: absolute; inset: 0;
+  background-size: contain; background-repeat: no-repeat; background-position: center 46%;
+}
 .capy-photos-live::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(180deg, rgba(8, 18, 28, 0.5) 0%, rgba(8, 18, 28, 0.08) 30%, rgba(8, 18, 28, 0) 55%, rgba(8, 18, 28, 0.55) 100%);
@@ -987,7 +999,9 @@ body {
 /* ---------- Full-page capybara background (Kitty Weather architecture) ---------- */
 #capy-bg {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0;
+  height: 100vh;
+  height: 100lvh; /* stable through iOS URL-bar collapse */
   z-index: 0;
   background: #46596b;
   overflow: hidden;

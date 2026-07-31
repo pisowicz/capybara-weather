@@ -1025,8 +1025,9 @@ window.CapyPhotos = (function () {
     return a;
   }
 
-  function urlFor(p, wrap) {
-    const want = Math.min(p.mw, Math.max(640, Math.ceil((wrap.clientWidth || 390) * (window.devicePixelRatio || 1) / 160) * 160));
+  function urlFor(p) {
+    const vw = Math.max(window.innerWidth || 390, 390);
+    const want = Math.min(p.mw, Math.max(640, Math.ceil(vw * Math.min(window.devicePixelRatio || 1, 3) / 160) * 160));
     return p.u.replace("/200px-", "/" + want + "px-");
   }
 
@@ -1042,7 +1043,9 @@ window.CapyPhotos = (function () {
     const img = new Image();
     img.onload = () => {
       const back = 1 - front;
-      layers[back].style.backgroundImage = `url("${img.src}")`;
+      const url = `url("${img.src}")`;
+      layers[back].querySelector(".cp-blur").style.backgroundImage = url;
+      layers[back].querySelector(".cp-main").style.backgroundImage = url;
       layers[back].classList.add("on");
       layers[front].classList.remove("on");
       front = back;
@@ -1054,14 +1057,16 @@ window.CapyPhotos = (function () {
       if (changeCb) changeCb(p);
     };
     img.onerror = () => { if (tries > 0) show(wrap, tries - 1); };
-    img.src = urlFor(p, wrap);
+    img.src = urlFor(p);
   }
 
   function start(wrap) {
     if (!stage) {
       stage = document.getElementById("capy-photo-stage");
       if (!stage) return;
-      stage.innerHTML = `<div class="capy-photo"></div><div class="capy-photo"></div>`;
+      stage.innerHTML =
+        `<div class="capy-photo"><div class="cp-blur"></div><div class="cp-main"></div></div>` +
+        `<div class="capy-photo"><div class="cp-blur"></div><div class="cp-main"></div></div>`;
       layers = Array.from(stage.querySelectorAll(".capy-photo"));
       order = shuffle(PHOTOS.map((_, i) => i));
     }
